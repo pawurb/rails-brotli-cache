@@ -1,0 +1,34 @@
+version: 2
+jobs:
+  test:
+    docker:
+      - image: cimg/ruby:2.7.6
+      - image: redis:alpine
+      - image: memcached:alpine
+    parallelism: 1
+    steps:
+      - checkout
+      - run: gem update --system
+      - run: gem install bundler
+      - run: sudo apt-get update --allow-releaseinfo-change
+      - run: bundle config set --local path 'vendor/bundle'
+      - run: bundle install
+      - run: sleep 5
+      - run:
+          name: Run specs for redis cache store
+          environment:
+            TEST_CACHE_STORE: redis_cache_store
+          command: bundle exec rspec spec/
+      - run:
+          name: Run specs for memcached cache store
+          environment:
+            TEST_CACHE_STORE: mem_cache_store
+          command: bundle exec rspec spec/
+      - run:
+          name: Run specs for in-memory cache store
+          command: bundle exec rspec spec/
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test

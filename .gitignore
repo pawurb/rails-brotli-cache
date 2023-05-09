@@ -1,0 +1,12 @@
+.tool-versions
+coverage/
+pkg/
+Gemfile.lock
+.ruby-version
+pkg/
+*.gem
+docker-compose.yml
+.byebug_history
+spec/dummy/log/
+spec/dummy/tmp/
+
