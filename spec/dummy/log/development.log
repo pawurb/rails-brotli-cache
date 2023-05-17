@@ -1,0 +1,39 @@
+Dalli::Server#connect 127.0.0.1:11211
+Dalli::Server#connect 127.0.0.1:11211
+Dalli::Server#connect 127.0.0.1:11211
+Dalli::Server#connect 127.0.0.1:11211
+Dalli::Server#connect 127.0.0.1:11211
+Dalli::Server#connect 127.0.0.1:11211
+Dalli::Server#connect 127.0.0.1:11211
+127.0.0.1:11211 failed (count: 0) Errno::ECONNREFUSED: Connection refused - connect(2) for "127.0.0.1" port 11211
+Dalli::Server#connect 127.0.0.1:11211
+127.0.0.1:11211 failed (count: 1) Errno::ECONNREFUSED: Connection refused - connect(2) for "127.0.0.1" port 11211
+127.0.0.1:11211 is down
+down_retry_delay not reached for 127.0.0.1:11211 (30.000 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (30.000 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.985 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.985 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.985 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.985 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.983 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.983 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.983 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.983 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.983 seconds left)
+Dalli::Server#connect 127.0.0.1:11211
+127.0.0.1:11211 failed (count: 0) Errno::ECONNREFUSED: Connection refused - connect(2) for "127.0.0.1" port 11211
+Dalli::Server#connect 127.0.0.1:11211
+127.0.0.1:11211 failed (count: 1) Errno::ECONNREFUSED: Connection refused - connect(2) for "127.0.0.1" port 11211
+127.0.0.1:11211 is down
+down_retry_delay not reached for 127.0.0.1:11211 (30.000 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (30.000 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.984 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.984 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.984 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.984 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.982 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.982 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.982 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.982 seconds left)
+down_retry_delay not reached for 127.0.0.1:11211 (29.982 seconds left)
+Dalli::Server#connect 127.0.0.1:11211

@@ -7,4 +7,6 @@ pkg/
 *.gem
 docker-compose.yml
 .byebug_history
+spec/dummy/log/
+spec/dummy/tmp/
 
