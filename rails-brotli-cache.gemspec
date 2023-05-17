@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.version       = RailsBrotliCache::VERSION
   gem.authors       = ["pawurb"]
   gem.email         = ["contact@pawelurbanek.com"]
-  gem.summary       = %q{ Rails cache using Brotli compression algorithm }
-  gem.description   = %q{ rails-brotli-cache allows to reduce storage needed for Rails cache by using Brotli compression which can produce outputs smaller by ~20% }
+  gem.summary       = %q{ Rails cache using Brotli algorithm offers better compression and performance. }
+  gem.description   = %q{ rails-brotli-cache allows to reduce storage needed for Rails cache by using Brotli compression which can produce outputs smaller by ~20%. }
   gem.homepage      = "https://github.com/pawurb/rails-brotli-cache"
   gem.files         = `git ls-files`.split("\n")
   gem.test_files    = gem.files.grep(%r{^(spec)/})

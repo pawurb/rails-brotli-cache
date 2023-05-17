@@ -65,10 +65,13 @@ end
 You can use it just like the default `Rails.cache` API:
 
 ```ruby
-RailsBrotliCache.read("test-key") => nil
-RailsBrotliCache.fetch("test-key") { 123 } => 123
+RailsBrotliCache.read("test-key") # => nil
+RailsBrotliCache.fetch("test-key") { 123 } # => 123
 RailsBrotliCache.delete("test-key")
-RailsBrotliCache.read("test-key") => nil
+RailsBrotliCache.read("test-key") # => nil
+RailsBrotliCache.write("test-key", 123, expires_in: 5.seconds)
+sleep 6
+RailsBrotliCache.read("test-key") # => nil
 
 ```
 
