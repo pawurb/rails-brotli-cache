@@ -19,7 +19,7 @@ Rails.application.configure do
 
   # Enable/disable caching. By default caching is disabled.
   # Run rails dev:cache to toggle caching.
-  config.cache_store = :memory_store
+  config.cache_store = (ENV["TEST_CACHE_STORE"] || :memory_store).to_sym
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
