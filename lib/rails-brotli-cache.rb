@@ -4,7 +4,7 @@ require 'rails-brotli-cache/version'
 require 'brotli'
 
 module RailsBrotliCache
-  COMPRESS_THRESHOLD = ENV.fetch("BR_CACHE_COMPRESS_THRESHOLD", 0).to_f * 1024.0
+  COMPRESS_THRESHOLD = ENV.fetch("BR_CACHE_COMPRESS_THRESHOLD", 1).to_f * 1024.0
   COMPRESS_QUALITY = ENV.fetch("BR_CACHE_COMPRESS_QUALITY", 5).to_i
   MARK_BR_COMPRESSED = "\x02".b
   @@prefix = "br-"
