@@ -35,5 +35,24 @@ describe RailsBrotliCache do
         expect(RailsBrotliCache.read("test-key")).to eq 1234
       end
     end
+
+    describe "#delete" do
+      it "removes the previously stored cache entry" do
+        expect(RailsBrotliCache.write("test-key", 1234))
+        expect(RailsBrotliCache.read("test-key")).to eq 1234
+        RailsBrotliCache.delete("test-key")
+        expect(RailsBrotliCache.read("test-key")).to eq nil
+      end
+    end
+
+    describe "disable_prefix!" do
+      it "saves brotli cache entries without `br-` prefix" do
+        RailsBrotliCache.disable_prefix!
+        RailsBrotliCache.fetch("test-key") { 123 }
+        expect(Rails.cache.read("br-test-key")).to eq nil
+        expect(Rails.cache.read("test-key")).to be_present
+        RailsBrotliCache.class_variable_set(:@@prefix, "br-")
+      end
+    end
   end
 end
