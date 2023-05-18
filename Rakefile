@@ -7,5 +7,5 @@ task default: :spec
 
 desc 'Test all cache_stores'
 task :test_all do
-  system("TEST_CACHE_STORE=redis_cache_store bundle exec rspec spec/ && TEST_CACHE_STORE=mem_cache_store bundle exec rspec spec/ && bundle exec rspec spec/")
+  system("RAILS_CACHE_STORE=redis_cache_store bundle exec rspec spec/ && RAILS_CACHE_STORE=brotli_cache_store bundle exec rspec spec/ && bundle exec rspec spec/")
 end

@@ -6,13 +6,20 @@ This gem enables support for compressing Ruby on Rails cache entries using the [
 
 ## Benchmarks
 
+Brotli cache works as a proxy layer wrapping the underlying cache data store.
+
+```ruby
+default_cache = ActiveSupport::Cache::RedisCacheStore.new(redis: $redis)
+brotli_cache = RailsBrotliCache::Store.new(default_cache)
+```
+
 **~25%** better compression of a sample JSON object:
 
 ```ruby
 json = File.read("sample.json") # sample 435kb JSON text
 json.size # => 435662
-Rails.cache.write("json", json)
-RailsBrotliCache.write("json", json)
+default_cache.write("json", json)
+brotli_cache.write("json", json)
 
 ## Check the size of cache entry stored in Redis
 $redis.get("json").size # => 31698
@@ -23,12 +30,11 @@ $redis.get("br-json").size # => 24058
 
 ```ruby
 users = User.limit(100).to_a # 100 ActiveRecord objects
-Rails.cache.write("users", users)
-RailsBrotliCache.write("users", users)
+default_cache.write("users", users)
+brotli_cache.write("users", users)
 $redis.get("users").size # => 12331
 $redis.get("br-users").size # => 10299
 ```
-
 
 **~25%** faster performance for reading/writing a larger JSON file:
 
@@ -36,41 +42,46 @@ $redis.get("br-users").size # => 10299
 json = File.read("sample.json") # sample 435kb JSON text
 
 Benchmark.bm do |x|
-  x.report("Rails.cache") do
+  x.report("default_cache") do
     1000.times do
-      Rails.cache.write("test", json)
-      Rails.cache.read("test")
+      default_cache.write("test", json)
+      default_cache.read("test")
     end
   end
 
-  x.report("RailsBrotliCache") do
+  x.report("brotli_cache") do
     1000.times do
-      RailsBrotliCache.write("test", json)
-      RailsBrotliCache.read("test")
+      brotli_cache.write("test", json)
+      brotli_cache.read("test")
     end
   end
 end
 
 # user     system      total        real
-# Rails.cache  5.177678   0.216435   5.394113 (  8.296072)
-# RailsBrotliCache  3.513312   0.323601   3.836913 (  6.114179)
+# default_cache  5.177678   0.216435   5.394113 (  8.296072)
+# brotli_cache   3.513312   0.323601   3.836913 (  6.114179)
 ```
 
-## API
+## Configuration
 
-`RailsBrotliCache` module exposes methods that are compatible with the default `Rails.cache`. Values are stored in the underlying `Rails.cache` store but precompressed with Brotli algorithm.
-
-You can use it just like the default `Rails.cache` API:
+Gem works as a drop-in replacement for a standard Rails cache store. Here's how you can configure it with different store types:
 
 ```ruby
-RailsBrotliCache.read("test-key") # => nil
-RailsBrotliCache.fetch("test-key") { 123 } # => 123
-RailsBrotliCache.delete("test-key")
-RailsBrotliCache.read("test-key") # => nil
-RailsBrotliCache.write("test-key", 123, expires_in: 5.seconds)
-sleep 6
-RailsBrotliCache.read("test-key") # => nil
+config.cache_store = RailsBrotliCache::Store.new(
+  ActiveSupport::Cache::RedisCacheStore.new(redis: $redis)
+)
+```
 
+```ruby
+config.cache_store = RailsBrotliCache::Store.new(
+  ActiveSupport::Cache::MemoryStore.new
+)
+```
+
+```ruby
+config.cache_store = RailsBrotliCache::Store.new(
+  ActiveSupport::Cache::MemCacheStore.new("localhost:11211")
+)
 ```
 
 Gem appends `br-` to the cache key names to prevent conflicts with previously saved cache entries. You can disable this behaviour by adding the following initializer file:
@@ -78,7 +89,7 @@ Gem appends `br-` to the cache key names to prevent conflicts with previously sa
 `app/config/initializers/rails-brotli-cache.rb`
 
 ```ruby
-RailsBrotliCache.disable_prefix!
+Rails.cache.disable_prefix!
 ```
 
 ## Testing
