@@ -73,12 +73,4 @@ describe RailsBrotliCache do
       expect(cache_store.read("test-key")).to eq nil
     end
   end
-
-  describe "disable_prefix!" do
-    it "saves brotli cache entries without `br-` prefix" do
-      cache_store.disable_prefix!
-      cache_store.fetch("test-key") { 123 }
-      cache_store.instance_variable_set(:@prefix, "br-")
-    end
-  end
 end

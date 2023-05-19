@@ -13,7 +13,11 @@ module RailsBrotliCache
 
     def initialize(core_store, options = {})
       @core_store = core_store
-      @prefix = "br-"
+      @prefix = if options.key?(:prefix)
+        options.fetch(:prefix)
+      else
+        "br-"
+      end
     end
 
     def fetch(name, options = nil, &block)
@@ -74,10 +78,6 @@ module RailsBrotliCache
 
     def clear(options = nil)
       @core_store.clear
-    end
-
-    def disable_prefix!
-      @prefix = nil
     end
 
     private

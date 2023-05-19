@@ -101,12 +101,13 @@ config.cache_store = RailsBrotliCache::Store.new(
 )
 ```
 
-Gem appends `br-` to the cache key names to prevent conflicts with previously saved cache entries. You can disable this behaviour by adding the following initializer file:
-
-`app/config/initializers/rails-brotli-cache.rb`
+Gem appends `br-` to the cache key names to prevent conflicts with previously saved cache entries. You can disable this behaviour by passing `{ prefix: nil }` during initialization:
 
 ```ruby
-Rails.cache.disable_prefix!
+config.cache_store = RailsBrotliCache::Store.new(
+  ActiveSupport::Cache::MemoryStore.new,
+  { prefix: nil }
+)
 ```
 
 ## Testing

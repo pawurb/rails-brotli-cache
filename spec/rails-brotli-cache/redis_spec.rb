@@ -5,9 +5,14 @@ require 'spec_helper'
 return unless ENV['RAILS_CACHE_STORE'] == 'redis_cache_store'
 
 describe RailsBrotliCache do
+  let(:options) do
+    {}
+  end
+
   subject(:cache_store) do
     RailsBrotliCache::Store.new(
-      ActiveSupport::Cache::RedisCacheStore.new(redis: $redis)
+      ActiveSupport::Cache::RedisCacheStore.new(redis: $redis),
+      options
     )
   end
 
@@ -28,16 +33,25 @@ describe RailsBrotliCache do
     expect($redis.get("gz-test-key").size > $redis.get("br-test-key").size).to eq true
   end
 
-  describe "disable_prefix!" do
-    it "saves brotli cache entries without `br-` prefix" do
-      cache_store.fetch("test-key") { 123 }
-      expect($redis.get("test-key")).to eq nil
-      expect($redis.get("br-test-key")).to be_present
-      cache_store.disable_prefix!
-      cache_store.fetch("test-key-2") { 123 }
-      expect($redis.get("br-test-key-2")).to eq nil
-      expect($redis.get("test-key-2")).to be_present
-      cache_store.instance_variable_set(:@prefix, "br-")
+  describe "disable_prefix" do
+    context "default prefix" do
+      it "appends 'br-' prefix" do
+        cache_store.fetch("test-key") { 123 }
+        expect($redis.get("test-key")).to eq nil
+        expect($redis.get("br-test-key")).to be_present
+      end
+    end
+
+    context "no prefix" do
+      let(:options) do
+        { prefix: nil }
+      end
+
+      it "saves brotli cache entries without `br-` prefix" do
+        cache_store.fetch("test-key") { 123 }
+        expect($redis.get("br-test-key")).to eq nil
+        expect($redis.get("test-key")).to be_present
+      end
     end
   end
 end
