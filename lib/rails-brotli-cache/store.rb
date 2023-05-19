@@ -75,7 +75,7 @@ module RailsBrotliCache
     end
 
     def disable_prefix!
-      @@prefix = nil
+      @prefix = nil
     end
 
     private

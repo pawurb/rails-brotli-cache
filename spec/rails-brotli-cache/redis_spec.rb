@@ -27,4 +27,17 @@ describe RailsBrotliCache do
     cache_store.write("test-key", json)
     expect($redis.get("gz-test-key").size > $redis.get("br-test-key").size).to eq true
   end
+
+  describe "disable_prefix!" do
+    it "saves brotli cache entries without `br-` prefix" do
+      cache_store.fetch("test-key") { 123 }
+      expect($redis.get("test-key")).to eq nil
+      expect($redis.get("br-test-key")).to be_present
+      cache_store.disable_prefix!
+      cache_store.fetch("test-key-2") { 123 }
+      expect($redis.get("br-test-key-2")).to eq nil
+      expect($redis.get("test-key-2")).to be_present
+      cache_store.instance_variable_set(:@prefix, "br-")
+    end
+  end
 end
