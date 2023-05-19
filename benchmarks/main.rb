@@ -12,6 +12,16 @@ brotli_memcached_cache = RailsBrotliCache::Store.new(memcached_cache)
 json_uri = URI("https://raw.githubusercontent.com/pawurb/rails-brotli-cache/main/spec/fixtures/sample.json")
 json = Net::HTTP.get(json_uri)
 
+puts "Uncompressed JSON size: #{json.size}"
+redis_cache.write("gz-json", json)
+gzip_json_size = redis_cache.redis.get("gz-json").size
+puts "Gzip JSON size: #{gzip_json_size}"
+brotli_redis_cache.write("json", json)
+br_json_size = redis_cache.redis.get("br-json").size
+puts "Brotli JSON size: #{br_json_size}"
+puts "~#{((gzip_json_size - br_json_size).to_f / gzip_json_size.to_f * 100).round}% improvment"
+puts ""
+
 iterations = 100
 
 Benchmark.bm do |x|
