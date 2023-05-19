@@ -40,6 +40,12 @@ describe RailsBrotliCache do
     end
   end
 
+  describe "#core_store" do
+    it "exposes the underlying data store" do
+      expect(cache_store.core_store.class).to eq ActiveSupport::Cache::MemoryStore
+    end
+  end
+
   describe "#read and #write" do
     it "reads values stored in Rails cache with a prefix" do
       expect(cache_store.read("test-key")).to eq nil

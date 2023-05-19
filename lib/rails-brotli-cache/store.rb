@@ -9,6 +9,8 @@ module RailsBrotliCache
     COMPRESS_QUALITY = ENV.fetch("BR_CACHE_COMPRESS_QUALITY", 5).to_i
     MARK_BR_COMPRESSED = "\x02".b
 
+    attr_reader :core_store
+
     def initialize(core_store, options = {})
       @core_store = core_store
       @prefix = "br-"
