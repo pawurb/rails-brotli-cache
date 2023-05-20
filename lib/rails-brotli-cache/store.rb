@@ -43,7 +43,12 @@ module RailsBrotliCache
       serialized = Marshal.dump(value)
 
       payload = if serialized.bytesize >= COMPRESS_THRESHOLD
-        MARK_BR_COMPRESSED + ::Brotli.deflate(serialized, quality: COMPRESS_QUALITY)
+        compressed_payload = ::Brotli.deflate(serialized, quality: COMPRESS_QUALITY)
+        if compressed_payload.bytesize < serialized.bytesize
+          MARK_BR_COMPRESSED + compressed_payload
+        else
+          serialized
+        end
       else
         serialized
       end
