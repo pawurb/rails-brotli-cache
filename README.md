@@ -57,8 +57,6 @@ Benchmark.bm do |x|
   # ...
 end
 
-# memory_cache  2.081221   0.051615   2.132836 (  2.132877)
-# brotli_memory_cache  1.134411   0.032996   1.167407 (  1.167418)
 # redis_cache  1.782225   0.049936   1.832161 (  2.523317)
 # brotli_redis_cache  1.218365   0.051084   1.269449 (  1.850894)
 # memcached_cache  1.766268   0.045351   1.811619 (  2.504233)
@@ -89,21 +87,17 @@ config.cache_store = RailsBrotliCache::Store.new(
 
 ```ruby
 config.cache_store = RailsBrotliCache::Store.new(
-  ActiveSupport::Cache::MemoryStore.new
-)
-```
-
-```ruby
-config.cache_store = RailsBrotliCache::Store.new(
   ActiveSupport::Cache::MemCacheStore.new("localhost:11211")
 )
 ```
+
+You should avoid using it with `ActiveSupport::Cache::MemoryStore`. This type of cache store does not serialize or compress objects but keeps them directly in the RAM of a Ruby process. In this case, adding this gem would reduce RAM usage but add huge performance overhead.
 
 Gem appends `br-` to the cache key names to prevent conflicts with previously saved entries. You can disable this behavior by passing `{ prefix: nil }` during initialization:
 
 ```ruby
 config.cache_store = RailsBrotliCache::Store.new(
-  ActiveSupport::Cache::MemoryStore.new,
+  ActiveSupport::Cache::RedisCacheStore.new,
   { prefix: nil }
 )
 ```
@@ -116,7 +110,7 @@ By default gem uses a Brotli compression, but you can customize the algorithm. Y
 
 ```ruby
 config.cache_store = RailsBrotliCache::Store.new(
-  ActiveSupport::Cache::MemoryStore.new,
+  ActiveSupport::Cache::RedisCacheStore.new,
   { compressor_class: Snappy }
 )
 ```
