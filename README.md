@@ -74,7 +74,7 @@ cp docker-compose.yml.sample docker-compose.yml
 docker compose up -d
 cd benchmarks
 bundle install
-ruby main.rb
+bundle exec ruby main.rb
 ```
 
 ## Configuration

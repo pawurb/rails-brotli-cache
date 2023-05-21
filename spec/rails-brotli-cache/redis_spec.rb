@@ -33,6 +33,12 @@ describe RailsBrotliCache do
     expect($redis.get("gz-test-key").size > $redis.get("br-test-key").size).to eq true
   end
 
+  it "respects { compress: false } setting and does not apply compression" do
+    Rails.cache.write("gz-test-key", json)
+    cache_store.write("test-key", json, compress: false)
+    expect($redis.get("gz-test-key").size < $redis.get("br-test-key").size).to eq true
+  end
+
   describe "disable_prefix" do
     context "default prefix" do
       it "appends 'br-' prefix" do

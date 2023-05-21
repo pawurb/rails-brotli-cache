@@ -41,8 +41,9 @@ module RailsBrotliCache
 
     def write(name, value, options = nil)
       serialized = Marshal.dump(value)
+      options = (options || {}).reverse_merge(compress: true)
 
-      payload = if serialized.bytesize >= COMPRESS_THRESHOLD
+      payload = if serialized.bytesize >= COMPRESS_THRESHOLD && !options.fetch(:compress) == false
         compressed_payload = ::Brotli.deflate(serialized, quality: COMPRESS_QUALITY)
         if compressed_payload.bytesize < serialized.bytesize
           MARK_BR_COMPRESSED + compressed_payload
@@ -56,7 +57,7 @@ module RailsBrotliCache
       @core_store.write(
         cache_key(name),
         payload,
-        (options || {}).merge(compress: false)
+        options.merge(compress: false)
       )
     end
 
