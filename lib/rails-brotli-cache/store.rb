@@ -92,7 +92,8 @@ module RailsBrotliCache
 
     private
 
-    def compressor_class(options = {}, default:)
+    def compressor_class(options, default:)
+      options = options || {}
       if (klass = options[:compressor_class])
         klass
       else
