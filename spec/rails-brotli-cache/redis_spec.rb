@@ -4,6 +4,16 @@ require 'spec_helper'
 
 return unless ENV['RAILS_CACHE_STORE'] == 'redis_cache_store'
 
+class DummyCompressor
+  def self.deflate(payload)
+    payload
+  end
+
+  def self.inflate(payload)
+    payload
+  end
+end
+
 describe RailsBrotliCache do
   let(:options) do
     {}
@@ -36,6 +46,12 @@ describe RailsBrotliCache do
   it "respects { compress: false } setting and does not apply compression" do
     Rails.cache.write("gz-test-key", json)
     cache_store.write("test-key", json, compress: false)
+    expect($redis.get("gz-test-key").size < $redis.get("br-test-key").size).to eq true
+  end
+
+  it "allows specyfing custom compressor class" do
+    Rails.cache.write("gz-test-key", json)
+    cache_store.write("test-key", json, compressor_class: DummyCompressor)
     expect($redis.get("gz-test-key").size < $redis.get("br-test-key").size).to eq true
   end
 

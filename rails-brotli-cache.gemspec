@@ -17,6 +17,7 @@ Gem::Specification.new do |gem|
   gem.license       = "MIT"
   gem.add_dependency "rails"
   gem.add_dependency "brotli"
+  gem.add_dependency "snappy"
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "redis"
   gem.add_development_dependency "dalli"

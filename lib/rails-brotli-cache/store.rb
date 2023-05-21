@@ -6,7 +6,7 @@ require 'brotli'
 module RailsBrotliCache
   class Store < ::ActiveSupport::Cache::Store
     COMPRESS_THRESHOLD = ENV.fetch("BR_CACHE_COMPRESS_THRESHOLD", 1).to_f * 1024.0
-    COMPRESS_QUALITY = ENV.fetch("BR_CACHE_COMPRESS_QUALITY", 5).to_i
+    BR_COMPRESS_QUALITY = ENV.fetch("BR_CACHE_COMPRESS_QUALITY", 5).to_i
     MARK_BR_COMPRESSED = "\x02".b
 
     attr_reader :core_store
@@ -18,6 +18,8 @@ module RailsBrotliCache
       else
         "br-"
       end
+
+      @compressor_class = compressor_class(options, default: BrotliCompressor)
     end
 
     def fetch(name, options = nil, &block)
@@ -44,7 +46,8 @@ module RailsBrotliCache
       options = (options || {}).reverse_merge(compress: true)
 
       payload = if serialized.bytesize >= COMPRESS_THRESHOLD && !options.fetch(:compress) == false
-        compressed_payload = ::Brotli.deflate(serialized, quality: COMPRESS_QUALITY)
+        compressor = compressor_class(options, default: @compressor_class)
+        compressed_payload = compressor.deflate(serialized)
         if compressed_payload.bytesize < serialized.bytesize
           MARK_BR_COMPRESSED + compressed_payload
         else
@@ -70,7 +73,8 @@ module RailsBrotliCache
       return nil unless payload.present?
 
       serialized = if payload.start_with?(MARK_BR_COMPRESSED)
-        ::Brotli.inflate(payload.byteslice(1..-1))
+        compressor = compressor_class(options, default: @compressor_class)
+        compressor.inflate(payload.byteslice(1..-1))
       else
         payload
       end
@@ -88,8 +92,26 @@ module RailsBrotliCache
 
     private
 
+    def compressor_class(options = {}, default:)
+      if (klass = options[:compressor_class])
+        klass
+      else
+        default
+      end
+    end
+
     def cache_key(name)
       "#{@prefix}#{name}"
+    end
+
+    class BrotliCompressor
+      def self.deflate(payload)
+        ::Brotli.deflate(payload, quality: BR_COMPRESS_QUALITY)
+      end
+
+      def self.inflate(payload)
+        ::Brotli.inflate(payload)
+      end
     end
   end
 end

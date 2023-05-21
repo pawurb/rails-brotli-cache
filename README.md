@@ -1,6 +1,6 @@
 # Rails Brotli Cache [![Gem Version](https://img.shields.io/gem/v/rails-brotli-cache)](https://badge.fury.io/rb/rails-brotli-cache) [![CircleCI](https://circleci.com/gh/pawurb/rails-brotli-cache.svg?style=svg)](https://circleci.com/gh/pawurb/rails-brotli-cache)
 
-This gem enables support for compressing Ruby on Rails cache entries using the [Brotli compression algorithm](https://github.com/google/brotli). `RailsBrotliCache::Store` offers better compression and faster performance compared to the default `Rails.cache` regardless of the underlying data store.
+This gem enables support for compressing Ruby on Rails cache entries using the [Brotli compression algorithm](https://github.com/google/brotli). `RailsBrotliCache::Store` offers better compression and faster performance compared to the default `Rails.cache`, regardless of the underlying data store. The gem also allows specifying any custom compression algorithm instead of Brotli.
 
 ## Benchmarks
 
@@ -65,9 +65,9 @@ end
 # brotli_memcached_cache  1.194646   0.051750   1.246396 (  1.752982)
 ```
 
-Regardless of the underlying data store, Brotli cache offers between 20%-40% performance improvment.
+Regardless of the underlying data store, Brotli cache offers 20%-40% performance improvement.
 
-You can run the benchmarks yourself by executing:
+You can run the benchmarks by executing:
 
 ```ruby
 cp docker-compose.yml.sample docker-compose.yml
@@ -79,7 +79,7 @@ bundle exec ruby main.rb
 
 ## Configuration
 
-Gem works as a drop-in replacement for a standard Rails cache store. Here's how you can configure it with different store types:
+Gem works as a drop-in replacement for a standard Rails cache store. You can configure it with different store types:
 
 ```ruby
 config.cache_store = RailsBrotliCache::Store.new(
@@ -99,7 +99,7 @@ config.cache_store = RailsBrotliCache::Store.new(
 )
 ```
 
-Gem appends `br-` to the cache key names to prevent conflicts with previously saved cache entries. You can disable this behaviour by passing `{ prefix: nil }` during initialization:
+Gem appends `br-` to the cache key names to prevent conflicts with previously saved entries. You can disable this behavior by passing `{ prefix: nil }` during initialization:
 
 ```ruby
 config.cache_store = RailsBrotliCache::Store.new(
@@ -109,6 +109,23 @@ config.cache_store = RailsBrotliCache::Store.new(
 ```
 
 Addition of the prefix means that you can safely add the Brotli the cache config and avoid compression algorithm conflicts between old and new entries. After configuring the Brotli cache you should run `Rails.cache.clear` to remove the outdated (gzipped) entries.
+
+### Use a custom compressor class
+
+By default gem uses a Brotli compression, but you can customize the algorithm. You can pass a `compressor_class` object as a store configuration argument or directly to `read/write/fetch` methods:
+
+```ruby
+config.cache_store = RailsBrotliCache::Store.new(
+  ActiveSupport::Cache::MemoryStore.new,
+  { compressor_class: Snappy }
+)
+```
+
+```ruby
+Rails.cache.write('test-key', json, compressor_class: Snappy)
+```
+
+This config expects a class which defines two class methods `inflate` and `deflate`. It allows you to instead use for example a [Google Snappy algorithm](https://github.com/miyucy/snappy) offering even better performance for the cost of worse compresion ratios. Optionally, you can define a custom class wrapping any compression library.
 
 ## Testing
 
