@@ -1,6 +1,6 @@
 # Rails Brotli Cache [![Gem Version](https://img.shields.io/gem/v/rails-brotli-cache)](https://badge.fury.io/rb/rails-brotli-cache) [![CircleCI](https://circleci.com/gh/pawurb/rails-brotli-cache.svg?style=svg)](https://circleci.com/gh/pawurb/rails-brotli-cache)
 
-This gem enables support for compressing Ruby on Rails cache entries using the [Brotli compression algorithm](https://github.com/google/brotli). `RailsBrotliCache::Store` offers better compression and faster performance compared to the default `Rails.cache`, regardless of the underlying data store. The gem also allows specifying any custom compression algorithm instead of Brotli.
+This gem enables support for compressing Ruby on Rails cache entries using the [Brotli compression algorithm](https://github.com/google/brotli). `RailsBrotliCache::Store` offers better compression and performance compared to the default `Rails.cache`, regardless of the underlying data store. The gem also allows specifying any custom compression algorithm instead of Brotli.
 
 ## Benchmarks
 
@@ -103,7 +103,7 @@ config.cache_store = RailsBrotliCache::Store.new(
 )
 ```
 
-You should avoid using it with `ActiveSupport::Cache::MemoryStore`. This type of cache store does not serialize or compress objects but keeps them directly in the RAM of a Ruby process. In this case, adding this gem would reduce RAM usage but add huge performance overhead.
+You should avoid using it with `ActiveSupport::Cache::MemoryStore`. This type of cache store does not serialize or compress objects but keeps them directly in the RAM. In this case, adding this gem would reduce RAM usage but add huge performance overhead.
 
 Gem appends `br-` to the cache key names to prevent conflicts with previously saved entries. You can disable this behavior by passing `{ prefix: nil }` during initialization:
 
