@@ -7,7 +7,9 @@ This gem enables support for compressing Ruby on Rails cache entries using the [
 Brotli cache works as a proxy layer wrapping the underlying cache data store.
 
 ```ruby
-redis_cache = ActiveSupport::Cache::RedisCacheStore.new
+redis_cache = ActiveSupport::Cache::RedisCacheStore.new(
+  url: "redis://localhost:6379"
+)
 brotli_redis_cache = RailsBrotliCache::Store.new(redis_cache)
 ```
 
@@ -19,9 +21,10 @@ json.size # => 435662
 redis_cache.write("json", json)
 brotli_redis_cache.write("json", json)
 
-## Check the size of cache entry stored in Redis
-$redis.get("json").size # => 31698
-$redis.get("br-json").size # => 24058
+## Check the size of cache entries stored in Redis
+redis = Redis.new(url: "redis://localhost:6379")
+redis.get("json").size # => 31698
+redis.get("br-json").size # => 24058
 ```
 
 **~20%** better compression of a sample ActiveRecord objects array:
@@ -30,8 +33,9 @@ $redis.get("br-json").size # => 24058
 users = User.limit(100).to_a # 100 ActiveRecord objects
 redis_cache.write("users", users)
 brotli_redis_cache.write("users", users)
-$redis.get("users").size # => 12331
-$redis.get("br-users").size # => 10299
+
+redis.get("users").size # => 12331
+redis.get("br-users").size # => 10299
 ```
 
 **~25%** faster performance for reading/writing a larger JSON file:
@@ -83,7 +87,7 @@ Gem works as a drop-in replacement for a standard Rails cache store. You can con
 
 ```ruby
 config.cache_store = RailsBrotliCache::Store.new(
-  ActiveSupport::Cache::RedisCacheStore.new(redis: $redis)
+  ActiveSupport::Cache::RedisCacheStore.new(url: "redis://localhost:6379")
 )
 ```
 
