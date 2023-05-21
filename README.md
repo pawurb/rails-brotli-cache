@@ -61,6 +61,8 @@ end
 # brotli_redis_cache  1.218365   0.051084   1.269449 (  1.850894)
 # memcached_cache  1.766268   0.045351   1.811619 (  2.504233)
 # brotli_memcached_cache  1.194646   0.051750   1.246396 (  1.752982)
+# file_cache  1.727967   0.071138   1.799105 (  1.799229)
+# brotli_file_cache  1.128514   0.044308   1.172822 (  1.172983)
 ```
 
 Regardless of the underlying data store, Brotli cache offers 20%-40% performance improvement.
@@ -88,6 +90,12 @@ config.cache_store = RailsBrotliCache::Store.new(
 ```ruby
 config.cache_store = RailsBrotliCache::Store.new(
   ActiveSupport::Cache::MemCacheStore.new("localhost:11211")
+)
+```
+
+```ruby
+config.cache_store = RailsBrotliCache::Store.new(
+  ActiveSupport::Cache::FileStore.new('/tmp')
 )
 ```
 

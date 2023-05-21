@@ -8,6 +8,8 @@ redis_cache = ActiveSupport::Cache::RedisCacheStore.new
 brotli_redis_cache = RailsBrotliCache::Store.new(redis_cache)
 memcached_cache = ActiveSupport::Cache::MemCacheStore.new
 brotli_memcached_cache = RailsBrotliCache::Store.new(memcached_cache)
+file_cache = ActiveSupport::Cache::FileStore.new('/tmp')
+brotli_file_cache = RailsBrotliCache::Store.new(file_cache)
 
 json_uri = URI("https://raw.githubusercontent.com/pawurb/rails-brotli-cache/main/spec/fixtures/sample.json")
 json = Net::HTTP.get(json_uri)
@@ -64,6 +66,20 @@ Benchmark.bm do |x|
     iterations.times do
       brotli_memcached_cache.write("test", json)
       brotli_memcached_cache.read("test")
+    end
+  end
+
+  x.report("file_cache") do
+    iterations.times do
+      file_cache.write("test", json)
+      file_cache.read("test")
+    end
+  end
+
+  x.report("brotli_file_cache") do
+    iterations.times do
+      brotli_file_cache.write("test", json)
+      brotli_file_cache.read("test")
     end
   end
 end
