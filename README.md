@@ -1,10 +1,10 @@
 # Rails Brotli Cache [![Gem Version](https://img.shields.io/gem/v/rails-brotli-cache)](https://badge.fury.io/rb/rails-brotli-cache) [![CircleCI](https://circleci.com/gh/pawurb/rails-brotli-cache.svg?style=svg)](https://circleci.com/gh/pawurb/rails-brotli-cache)
 
-This gem enables support for compressing Ruby on Rails cache entries using the [Brotli compression algorithm](https://github.com/google/brotli). `RailsBrotliCache::Store` offers better compression and performance compared to the default `Rails.cache`, regardless of the underlying data store. The gem also allows specifying any custom compression algorithm instead of Brotli.
+This gem enables support for compressing Ruby on Rails cache entries using the [Brotli compression algorithm](https://github.com/google/brotli). `RailsBrotliCache::Store` offers better compression and performance compared to the default `Rails.cache` Gzip, regardless of the underlying data store. The gem also allows specifying any custom compression algorithm instead of Brotli.
 
 ## Benchmarks
 
-Brotli cache works as a proxy layer wrapping the standard cache data store.
+Brotli cache works as a proxy layer wrapping the standard cache data store. It applies Brotli compression instead of the default Gzip before storing cache entries.
 
 ```ruby
 redis_cache = ActiveSupport::Cache::RedisCacheStore.new(
@@ -23,8 +23,8 @@ brotli_redis_cache.write("json", json)
 
 ## Check the size of cache entries stored in Redis
 redis = Redis.new(url: "redis://localhost:6379")
-redis.get("json").size # => 31698
-redis.get("br-json").size # => 24058
+redis.get("json").size # => 31698 ~31kb
+redis.get("br-json").size # => 24058 ~24kb
 ```
 
 **~20%** better compression of a sample ActiveRecord objects array:
@@ -34,8 +34,8 @@ users = User.limit(100).to_a # 100 ActiveRecord objects
 redis_cache.write("users", users)
 brotli_redis_cache.write("users", users)
 
-redis.get("users").size # => 12331
-redis.get("br-users").size # => 10299
+redis.get("users").size # => 12331 ~12kb
+redis.get("br-users").size # => 10299 ~10kb
 ```
 
 **~25%** faster performance for reading/writing a larger JSON file:
