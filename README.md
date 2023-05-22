@@ -4,7 +4,7 @@ This gem enables support for compressing Ruby on Rails cache entries using the [
 
 ## Benchmarks
 
-Brotli cache works as a proxy layer wrapping the underlying cache data store.
+Brotli cache works as a proxy layer wrapping the standard cache data store.
 
 ```ruby
 redis_cache = ActiveSupport::Cache::RedisCacheStore.new(
