@@ -82,6 +82,10 @@ module RailsBrotliCache
       Marshal.load(serialized)
     end
 
+     def exist?(name, options = nil)
+      @core_store.exist?(cache_key(name), options)
+    end
+
     def delete(name, options = nil)
       @core_store.delete(cache_key(name), options)
     end

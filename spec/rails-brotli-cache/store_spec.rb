@@ -40,6 +40,17 @@ describe RailsBrotliCache do
     end
   end
 
+  describe "exist?" do
+    it "returns true if cache entry exists" do
+      cache_store.write("test-key", 1234)
+      expect(cache_store.exist?("test-key")).to eq true
+    end
+
+    it "returns false if cache entry does not exist" do
+      expect(cache_store.exist?("test-key")).to eq false
+    end
+  end
+
   describe "#core_store" do
     it "exposes the underlying data store" do
       expect(cache_store.core_store.class).to eq ActiveSupport::Cache::MemoryStore
