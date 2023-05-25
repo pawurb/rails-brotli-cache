@@ -2,6 +2,8 @@
 
 This gem enables support for compressing Ruby on Rails cache entries using the [Brotli compression algorithm](https://github.com/google/brotli). `RailsBrotliCache::Store` offers better compression and performance compared to the default `Rails.cache` Gzip, regardless of the underlying data store. The gem also allows specifying any custom compression algorithm instead of Brotli.
 
+I'm currently working on a post describing the gem in more detail. You can subscribe to [my blog's mailing list](https://eepurl.com/dhuFg5) or [follow me on Twitter](https://twitter.com/_pawurb) to get notified when it's out.
+
 ## Benchmarks
 
 Brotli cache works as a proxy layer wrapping the standard cache data store. It applies Brotli compression instead of the default Gzip before storing cache entries.
