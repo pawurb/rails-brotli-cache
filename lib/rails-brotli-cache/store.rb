@@ -94,6 +94,10 @@ module RailsBrotliCache
       @core_store.clear
     end
 
+    def self.supports_cache_versioning?
+      true
+    end
+
     private
 
     def compressor_class(options, default:)
