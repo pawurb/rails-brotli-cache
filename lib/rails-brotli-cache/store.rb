@@ -72,6 +72,8 @@ module RailsBrotliCache
 
       return nil unless payload.present?
 
+      return payload if payload.is_a?(Integer)
+
       serialized = if payload.start_with?(MARK_BR_COMPRESSED)
         compressor = compressor_class(options, default: @compressor_class)
         compressor.inflate(payload.byteslice(1..-1))
@@ -92,6 +94,14 @@ module RailsBrotliCache
 
     def clear(options = nil)
       @core_store.clear
+    end
+
+    def increment(name, amount = 1, options = nil)
+      @core_store.increment(cache_key(name), amount, options)
+    end
+
+    def decrement(name, amount = 1, options = nil)
+      @core_store.decrement(cache_key(name), amount, options)
     end
 
     def self.supports_cache_versioning?

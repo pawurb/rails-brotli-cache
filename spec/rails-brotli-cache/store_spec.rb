@@ -40,6 +40,20 @@ describe RailsBrotliCache do
     end
   end
 
+  describe "#increment and #decrement" do
+    it "works" do
+      cache_store.write("integer-key", 0)
+      cache_store.increment("integer-key")
+      expect(cache_store.read("integer-key")).to eq 1
+      cache_store.increment("integer-key", 3)
+      expect(cache_store.read("integer-key")).to eq 4
+      cache_store.decrement("integer-key", 4)
+      expect(cache_store.read("integer-key")).to eq 0
+      cache_store.decrement("integer-key")
+      expect(cache_store.read("integer-key")).to eq -1
+    end
+  end
+
   describe "exist?" do
     it "returns true if cache entry exists" do
       cache_store.write("test-key", 1234)
