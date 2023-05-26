@@ -42,6 +42,13 @@ module RailsBrotliCache
     end
 
     def write(name, value, options = nil)
+      if value.is_a?(Integer)
+        return @core_store.write(
+          cache_key(name),
+          value
+        )
+      end
+
       serialized = Marshal.dump(value)
       options = (options || {}).reverse_merge(compress: true)
 
@@ -96,12 +103,14 @@ module RailsBrotliCache
       @core_store.clear
     end
 
-    def increment(name, amount = 1, options = nil)
-      @core_store.increment(cache_key(name), amount, options)
+    def increment(*args)
+      args[0] = cache_key(args[0])
+      @core_store.increment(*args)
     end
 
-    def decrement(name, amount = 1, options = nil)
-      @core_store.decrement(cache_key(name), amount, options)
+    def decrement(*args)
+      args[0] = cache_key(args[0])
+      @core_store.decrement(*args)
     end
 
     def self.supports_cache_versioning?
