@@ -42,13 +42,6 @@ module RailsBrotliCache
     end
 
     def write(name, value, options = nil)
-      if value.is_a?(Integer)
-        return @core_store.write(
-          cache_key(name),
-          value
-        )
-      end
-
       options = (options || {}).reverse_merge(compress: true)
       payload = compressed(value, options)
 
@@ -126,6 +119,7 @@ module RailsBrotliCache
     private
 
     def compressed(value, options)
+      return value if value.is_a?(Integer)
       options ||= {}
       serialized = Marshal.dump(value)
 
