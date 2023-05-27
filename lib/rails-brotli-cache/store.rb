@@ -62,6 +62,7 @@ module RailsBrotliCache
     end
 
     def write_multi(hash, options = nil)
+      options ||= {}
       new_hash = hash.map do |key, val|
         [
           cache_key(key),
@@ -69,7 +70,10 @@ module RailsBrotliCache
         ]
       end
 
-      @core_store.write_multi(new_hash, options)
+      @core_store.write_multi(
+        new_hash,
+        options.merge(compress: false)
+      )
     end
 
     def read_multi(*names)
@@ -85,7 +89,9 @@ module RailsBrotliCache
       options = names.extract_options!
       names = names.map { |name| cache_key(name) }
 
-      @core_store.fetch_multi(*names, options) do |name|
+      @core_store.fetch_multi(
+        *names, options.merge(compress: false)
+      ) do |name|
         compressed(yield(name), options)
       end
     end
