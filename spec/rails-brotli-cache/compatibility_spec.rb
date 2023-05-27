@@ -62,7 +62,6 @@ describe RailsBrotliCache do
       end
 
       it "for #write_multi and #read_multi" do
-        if standard_cache.class != ActiveSupport::Cache::NullStore ## NullStore does not support read/write multi
           values = {
             "key_1" => "val_1",
             "key_2" => "val_2"
@@ -70,17 +69,14 @@ describe RailsBrotliCache do
 
           brotli_store.write_multi(values)
           standard_cache.write_multi(values)
-          expect(brotli_store.read("key_1")).to eq "val_1"
-          expect(brotli_store.read("key_2")).to eq "val_2"
-          expect(standard_cache.read("key_1")).to eq "val_1"
-          expect(standard_cache.read("key_2")).to eq "val_2"
+
+          expect(brotli_store.read("key_1")).to eq standard_cache.read("key_1")
+          expect(brotli_store.read("key_2")).to eq standard_cache.read("key_2")
 
           expect(brotli_store.read_multi("key_1", "key_2")).to eq(standard_cache.read_multi("key_1", "key_2"))
-        end
       end
 
       it "for #fetch_multi" do
-        if standard_cache.class != ActiveSupport::Cache::NullStore ## NullStore does not support fetch multi
           values = {
             "key_1" => "val_1",
             "key_2" => "val_2"
@@ -94,11 +90,10 @@ describe RailsBrotliCache do
             "val_#{key.split('_').last}"
           end
 
-          expect(brotli_store.read("key_1")).to eq "val_1"
-          expect(brotli_store.read("key_2")).to eq "val_2"
+          expect(brotli_store.read("key_1")).to eq standard_cache.read("key_1")
+          expect(brotli_store.read("key_2")).to eq standard_cache.read("key_2")
 
           expect(brotli_store.read_multi("key_1", "key_2")).to eq(standard_cache.read_multi("key_1", "key_2"))
-        end
       end
     end
   end

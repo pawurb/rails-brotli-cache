@@ -49,20 +49,8 @@ module RailsBrotliCache
         )
       end
 
-      serialized = Marshal.dump(value)
       options = (options || {}).reverse_merge(compress: true)
-
-      payload = if serialized.bytesize >= COMPRESS_THRESHOLD && !options.fetch(:compress) == false
-        compressor = compressor_class(options, default: @compressor_class)
-        compressed_payload = compressor.deflate(serialized)
-        if compressed_payload.bytesize < serialized.bytesize
-          MARK_BR_COMPRESSED + compressed_payload
-        else
-          serialized
-        end
-      else
-        serialized
-      end
+      payload = compressed(value, options)
 
       @core_store.write(
         cache_key(name),
@@ -77,39 +65,35 @@ module RailsBrotliCache
         options
       )
 
-      return nil unless payload.present?
-
-      return payload if payload.is_a?(Integer)
-
-      serialized = if payload.start_with?(MARK_BR_COMPRESSED)
-        compressor = compressor_class(options, default: @compressor_class)
-        compressor.inflate(payload.byteslice(1..-1))
-      else
-        payload
-      end
-
-      Marshal.load(serialized)
+      uncompressed(payload)
     end
 
     def write_multi(hash, options = nil)
-      hash.each do |key, val|
-        write(key, val, options)
+      new_hash = hash.map do |key, val|
+        [
+          cache_key(key),
+          compressed(val, options)
+        ]
       end
+
+      @core_store.write_multi(new_hash, options)
     end
 
     def read_multi(*names)
       options = names.extract_options!
+      names = names.map { |name| cache_key(name) }
 
-      Hash[names.map do |name|
-        [name, read(name, options)]
+      Hash[core_store.read_multi(*names, options).map do |key, val|
+        [source_cache_key(key), uncompressed(val)]
       end]
     end
 
     def fetch_multi(*names)
       options = names.extract_options!
+      names = names.map { |name| cache_key(name) }
 
-      names.each do |name|
-        fetch(name, options) { yield(name) }
+      @core_store.fetch_multi(*names, options) do |name|
+        compressed(yield(name), options)
       end
     end
 
@@ -141,6 +125,38 @@ module RailsBrotliCache
 
     private
 
+    def compressed(value, options)
+      options ||= {}
+      serialized = Marshal.dump(value)
+
+      if serialized.bytesize >= COMPRESS_THRESHOLD && !options.fetch(:compress) == false
+        compressor = compressor_class(options, default: @compressor_class)
+        compressed_payload = compressor.deflate(serialized)
+        if compressed_payload.bytesize < serialized.bytesize
+          MARK_BR_COMPRESSED + compressed_payload
+        else
+          serialized
+        end
+      else
+        serialized
+      end
+    end
+
+    def uncompressed(payload)
+      return nil unless payload.present?
+
+      return payload if payload.is_a?(Integer)
+
+      serialized = if payload.start_with?(MARK_BR_COMPRESSED)
+        compressor = compressor_class(options, default: @compressor_class)
+        compressor.inflate(payload.byteslice(1..-1))
+      else
+        payload
+      end
+
+      Marshal.load(serialized)
+    end
+
     def compressor_class(options, default:)
       options = options || {}
       if (klass = options[:compressor_class])
@@ -152,6 +168,10 @@ module RailsBrotliCache
 
     def cache_key(name)
       "#{@prefix}#{name}"
+    end
+
+    def source_cache_key(name)
+      name.remove(@prefix)
     end
 
     class BrotliCompressor
