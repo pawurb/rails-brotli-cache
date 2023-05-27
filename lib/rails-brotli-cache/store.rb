@@ -58,7 +58,7 @@ module RailsBrotliCache
         options
       )
 
-      uncompressed(payload)
+      uncompressed(payload, options)
     end
 
     def write_multi(hash, options = nil)
@@ -77,7 +77,7 @@ module RailsBrotliCache
       names = names.map { |name| cache_key(name) }
 
       Hash[core_store.read_multi(*names, options).map do |key, val|
-        [source_cache_key(key), uncompressed(val)]
+        [source_cache_key(key), uncompressed(val, options)]
       end]
     end
 
@@ -119,8 +119,9 @@ module RailsBrotliCache
     private
 
     def compressed(value, options)
-      return value if value.is_a?(Integer)
       options ||= {}
+
+      return value if value.is_a?(Integer)
       serialized = Marshal.dump(value)
 
       if serialized.bytesize >= COMPRESS_THRESHOLD && !options.fetch(:compress) == false
@@ -136,7 +137,9 @@ module RailsBrotliCache
       end
     end
 
-    def uncompressed(payload)
+    def uncompressed(payload, options)
+      options ||= {}
+
       return nil unless payload.present?
 
       return payload if payload.is_a?(Integer)
