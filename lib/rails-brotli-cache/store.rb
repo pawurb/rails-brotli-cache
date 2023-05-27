@@ -91,7 +91,29 @@ module RailsBrotliCache
       Marshal.load(serialized)
     end
 
-     def exist?(name, options = nil)
+    def write_multi(hash, options = nil)
+      hash.each do |key, val|
+        write(key, val, options)
+      end
+    end
+
+    def read_multi(*names)
+      options = names.extract_options!
+
+      Hash[names.map do |name|
+        [name, read(name, options)]
+      end]
+    end
+
+    def fetch_multi(*names)
+      options = names.extract_options!
+
+      names.each do |name|
+        fetch(name, options) { yield(name) }
+      end
+    end
+
+    def exist?(name, options = nil)
       @core_store.exist?(cache_key(name), options)
     end
 
