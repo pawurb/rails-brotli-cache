@@ -171,7 +171,7 @@ module RailsBrotliCache
     end
 
     def source_cache_key(name)
-      name.remove(@prefix)
+      name.delete_prefix(@prefix.to_s)
     end
 
     class BrotliCompressor
