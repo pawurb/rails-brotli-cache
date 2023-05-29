@@ -19,9 +19,9 @@ describe RailsBrotliCache do
 
     it "executes block only once" do
       counter = 0
-      cache_store.fetch("forced-key") { counter += 1 }
-      cache_store.fetch("forced-key") { counter += 1 }
-      expect(cache_store.read("forced-key")).to eq 1
+      cache_store.fetch("test-key") { counter += 1 }
+      cache_store.fetch("test-key") { counter += 1 }
+      expect(cache_store.read("test-key")).to eq 1
     end
 
     context "{ force: true }" do

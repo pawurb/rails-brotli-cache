@@ -23,22 +23,22 @@ module RailsBrotliCache
     end
 
     def fetch(name, options = nil, &block)
-      value = read(name, options)
+      options ||= {}
 
-      if value.present? && !options&.fetch(:force, false) == true
-        return value
-      end
-
-      if block_given?
-        value = block.call
-        write(name, value, options)
-
-        value
-      elsif options && options[:force]
+      if !block_given? && options[:force]
         raise ArgumentError, "Missing block: Calling `Cache#fetch` with `force: true` requires a block."
-      else
-        read(name, options)
       end
+
+      uncompressed(
+        @core_store.fetch(cache_key(name), options.merge(compress: false)) do
+          if block_given?
+            compressed(block.call, options)
+          else
+            nil
+          end
+        end,
+        options
+      )
     end
 
     def write(name, value, options = nil)
