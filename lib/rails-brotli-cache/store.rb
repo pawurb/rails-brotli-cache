@@ -130,7 +130,7 @@ module RailsBrotliCache
       return value if value.is_a?(Integer)
       serialized = Marshal.dump(value)
 
-      if serialized.bytesize >= COMPRESS_THRESHOLD && !options.fetch(:compress) == false
+      if serialized.bytesize >= COMPRESS_THRESHOLD && !options.fetch(:compress, true) == false
         compressor = compressor_class(options, default: @compressor_class)
         compressed_payload = compressor.deflate(serialized)
         if compressed_payload.bytesize < serialized.bytesize
