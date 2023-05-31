@@ -42,7 +42,7 @@ module RailsBrotliCache
     end
 
     def write(name, value, options = nil)
-      options = (options || {}).reverse_merge(compress: true)
+      options ||= {}
       payload = compressed(value, options)
 
       @core_store.write(
@@ -161,7 +161,7 @@ module RailsBrotliCache
     end
 
     def compressor_class(options, default:)
-      options = options || {}
+      options ||= {}
       if (klass = options[:compressor_class])
         klass
       else

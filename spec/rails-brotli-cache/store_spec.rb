@@ -7,6 +7,10 @@ describe RailsBrotliCache do
     RailsBrotliCache::Store.new(ActiveSupport::Cache::MemoryStore.new)
   end
 
+  let(:big_enough_to_compress_value) do
+    SecureRandom.hex(2048)
+  end
+
   describe "#fetch" do
     it "stores value in the configured Rails.cache with a prefix" do
       cache_store.fetch("test-key") { 123 }
@@ -40,9 +44,27 @@ describe RailsBrotliCache do
     end
 
     it "stores value in the configured Rails.cache when options passed" do
-      big_enough_to_compress_value = SecureRandom.hex(2048)
       cache_store.fetch("test-key", expires_in: 5.seconds) { big_enough_to_compress_value }
       expect(cache_store.read("test-key")).to eq big_enough_to_compress_value
+    end
+  end
+
+  describe "#write_multi and #read_multi" do
+    it "works" do
+      values = {
+        "key_1" => big_enough_to_compress_value,
+        "key_2" => 123
+      }
+
+      cache_store.write_multi(values, expires_in: 5.seconds)
+      expect(cache_store.read_multi("key_1", "key_2")).to eq values
+    end
+  end
+
+  describe "fetch_multi" do
+    it "works" do
+      cache_store.fetch_multi("key_1", "key_2", expires_in: 5.seconds) { big_enough_to_compress_value }
+      expect(cache_store.read("key_1")).to eq big_enough_to_compress_value
     end
   end
 
@@ -80,8 +102,8 @@ describe RailsBrotliCache do
   describe "#read and #write" do
     it "reads values stored in Rails cache with a prefix" do
       expect(cache_store.read("test-key")).to eq nil
-      expect(cache_store.write("test-key", 1234))
-      expect(cache_store.read("test-key")).to eq 1234
+      expect(cache_store.write("test-key", big_enough_to_compress_value))
+      expect(cache_store.read("test-key")).to eq big_enough_to_compress_value
     end
 
     context "payloads smaller then 1kb" do
