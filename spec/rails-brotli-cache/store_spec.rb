@@ -38,6 +38,12 @@ describe RailsBrotliCache do
         expect(cache_store.read("forced-key")).to eq 2
       end
     end
+
+    it "stores value in the configured Rails.cache when options passed" do
+      big_enough_to_compress_value = SecureRandom.hex(2048)
+      cache_store.fetch("test-key", expires_in: 5.seconds) { big_enough_to_compress_value }
+      expect(cache_store.read("test-key")).to eq big_enough_to_compress_value
+    end
   end
 
   describe "#increment and #decrement" do
