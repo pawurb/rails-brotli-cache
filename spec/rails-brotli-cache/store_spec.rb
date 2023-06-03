@@ -4,11 +4,28 @@ require 'spec_helper'
 
 describe RailsBrotliCache do
   subject(:cache_store) do
-    RailsBrotliCache::Store.new(ActiveSupport::Cache::MemoryStore.new)
+    RailsBrotliCache::Store.new(
+      ActiveSupport::Cache::MemoryStore.new,
+      options
+    )
   end
 
   let(:big_enough_to_compress_value) do
     SecureRandom.hex(2048)
+  end
+
+  let(:options) do
+    {}
+  end
+
+  class DummyCompressor
+    def self.deflate(payload)
+      Zlib::Deflate.deflate(payload)
+    end
+
+    def self.inflate(payload)
+      Zlib::Inflate.inflate(payload)
+    end
   end
 
   describe "#fetch" do
@@ -100,20 +117,60 @@ describe RailsBrotliCache do
   end
 
   describe "#read and #write" do
+    let(:one_kb_value) do
+      SecureRandom.hex(512)
+    end
+
     it "reads values stored in Rails cache with a prefix" do
       expect(cache_store.read("test-key")).to eq nil
       expect(cache_store.write("test-key", big_enough_to_compress_value))
       expect(cache_store.read("test-key")).to eq big_enough_to_compress_value
     end
 
-    context "payloads smaller then 1kb" do
-      before do
-        expect(Brotli).not_to receive(:deflate)
+    describe ":compressor_class option" do
+      context "as an init config" do
+        let(:options) do
+          { compressor_class: DummyCompressor }
+        end
+
+        it "calls the custom compressor_class" do
+          expect(DummyCompressor).to receive(:deflate).and_call_original
+          cache_store.write("test-key", one_kb_value)
+          expect(DummyCompressor).to receive(:inflate).and_call_original
+          cache_store.read("test-key")
+        end
       end
 
-      it "does not apply compression" do
+      context "as an method call" do
+        it "calls the custom compressor_class" do
+          expect(DummyCompressor).to receive(:deflate).and_call_original
+          cache_store.write("test-key", one_kb_value, compressor_class: DummyCompressor)
+          expect(DummyCompressor).to receive(:inflate).and_call_original
+          cache_store.read("test-key", compressor_class: DummyCompressor)
+        end
+      end
+    end
+
+    describe ":compress_threshold option" do
+      it "applies compression for larger objects" do
+        expect(Brotli).to receive(:deflate).and_call_original
+        cache_store.write("test-key", one_kb_value)
+      end
+
+      it "does not apply compression for smaller objects" do
+        expect(Brotli).not_to receive(:deflate)
         cache_store.write("test-key", 123)
-        expect(cache_store.read("test-key")).to eq 123
+      end
+
+      context "custom :compress_threshold value" do
+        let(:options) do
+          { compress_threshold: 2.kilobyte }
+        end
+
+        it "does not apply compression for objects smaller then custom threshold" do
+          expect(Brotli).not_to receive(:deflate)
+          cache_store.write("test-key", one_kb_value)
+        end
       end
     end
   end

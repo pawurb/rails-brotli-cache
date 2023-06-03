@@ -9,6 +9,22 @@ module RailsBrotliCache
     BR_COMPRESS_QUALITY = ENV.fetch("BR_CACHE_COMPRESS_QUALITY", 5).to_i
     MARK_BR_COMPRESSED = "\x02".b
 
+    class BrotliCompressor
+      def self.deflate(payload)
+        ::Brotli.deflate(payload, quality: BR_COMPRESS_QUALITY)
+      end
+
+      def self.inflate(payload)
+        ::Brotli.inflate(payload)
+      end
+    end
+
+    DEFAULT_OPTIONS = {
+      compress_threshold: COMPRESS_THRESHOLD,
+      compress: true,
+      compressor_class: BrotliCompressor
+    }
+
     attr_reader :core_store
 
     def initialize(core_store, options = {})
@@ -19,11 +35,11 @@ module RailsBrotliCache
         "br-"
       end
 
-      @compressor_class = compressor_class(options, default: BrotliCompressor)
+      @init_options = options.reverse_merge(DEFAULT_OPTIONS)
     end
 
     def fetch(name, options = nil, &block)
-      options ||= {}
+      options = (options || {}).reverse_merge(@init_options)
 
       if !block_given? && options[:force]
         raise ArgumentError, "Missing block: Calling `Cache#fetch` with `force: true` requires a block."
@@ -42,7 +58,7 @@ module RailsBrotliCache
     end
 
     def write(name, value, options = nil)
-      options ||= {}
+      options = (options || {}).reverse_merge(@init_options)
       payload = compressed(value, options)
 
       @core_store.write(
@@ -53,6 +69,8 @@ module RailsBrotliCache
     end
 
     def read(name, options = nil)
+      options = (options || {}).reverse_merge(@init_options)
+
       payload = @core_store.read(
         cache_key(name),
         options
@@ -62,7 +80,7 @@ module RailsBrotliCache
     end
 
     def write_multi(hash, options = nil)
-      options ||= {}
+      options = (options || {}).reverse_merge(@init_options)
       new_hash = hash.map do |key, val|
         [
           cache_key(key),
@@ -79,6 +97,7 @@ module RailsBrotliCache
     def read_multi(*names)
       options = names.extract_options!
       names = names.map { |name| cache_key(name) }
+      options = options.reverse_merge(@init_options)
 
       Hash[core_store.read_multi(*names, options).map do |key, val|
         [source_cache_key(key), uncompressed(val, options)]
@@ -88,6 +107,7 @@ module RailsBrotliCache
     def fetch_multi(*names)
       options = names.extract_options!
       names = names.map { |name| cache_key(name) }
+      options = options.reverse_merge(@init_options)
 
       @core_store.fetch_multi(
         *names, options.merge(compress: false)
@@ -125,13 +145,11 @@ module RailsBrotliCache
     private
 
     def compressed(value, options)
-      options ||= {}
-
       return value if value.is_a?(Integer)
       serialized = Marshal.dump(value)
 
-      if serialized.bytesize >= COMPRESS_THRESHOLD && !options.fetch(:compress, true) == false
-        compressor = compressor_class(options, default: @compressor_class)
+      if serialized.bytesize >= options.fetch(:compress_threshold) && !options.fetch(:compress) == false
+        compressor = options.fetch(:compressor_class)
         compressed_payload = compressor.deflate(serialized)
         if compressed_payload.bytesize < serialized.bytesize
           MARK_BR_COMPRESSED + compressed_payload
@@ -144,14 +162,12 @@ module RailsBrotliCache
     end
 
     def uncompressed(payload, options)
-      options ||= {}
-
       return nil unless payload.present?
 
       return payload if payload.is_a?(Integer)
 
       serialized = if payload.start_with?(MARK_BR_COMPRESSED)
-        compressor = compressor_class(options, default: @compressor_class)
+        compressor = options.fetch(:compressor_class)
         compressor.inflate(payload.byteslice(1..-1))
       else
         payload
@@ -160,31 +176,12 @@ module RailsBrotliCache
       Marshal.load(serialized)
     end
 
-    def compressor_class(options, default:)
-      options ||= {}
-      if (klass = options[:compressor_class])
-        klass
-      else
-        default
-      end
-    end
-
     def cache_key(name)
       "#{@prefix}#{name}"
     end
 
     def source_cache_key(name)
       name.delete_prefix(@prefix.to_s)
-    end
-
-    class BrotliCompressor
-      def self.deflate(payload)
-        ::Brotli.deflate(payload, quality: BR_COMPRESS_QUALITY)
-      end
-
-      def self.inflate(payload)
-        ::Brotli.inflate(payload)
-      end
     end
   end
 end
