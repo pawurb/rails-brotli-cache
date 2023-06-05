@@ -6,7 +6,7 @@ require 'brotli'
 module RailsBrotliCache
   class Store < ::ActiveSupport::Cache::Store
     COMPRESS_THRESHOLD = ENV.fetch("BR_CACHE_COMPRESS_THRESHOLD", 1).to_f * 1024.0
-    BR_COMPRESS_QUALITY = ENV.fetch("BR_CACHE_COMPRESS_QUALITY", 5).to_i
+    BR_COMPRESS_QUALITY = ENV.fetch("BR_CACHE_COMPRESS_QUALITY", 6).to_i
     MARK_BR_COMPRESSED = "\x02".b
 
     class BrotliCompressor
