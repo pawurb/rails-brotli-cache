@@ -128,14 +128,12 @@ module RailsBrotliCache
       @core_store.clear
     end
 
-    def increment(*args)
-      args[0] = cache_key(args[0])
-      @core_store.increment(*args)
+    def increment(name, amount = 1, **options)
+      @core_store.increment(cache_key(name), amount, **options)
     end
 
-    def decrement(*args)
-      args[0] = cache_key(args[0])
-      @core_store.decrement(*args)
+    def decrement(name, amount = 1, **options)
+      @core_store.decrement(cache_key(name), amount, **options)
     end
 
     def self.supports_cache_versioning?
