@@ -99,9 +99,9 @@ module RailsBrotliCache
       names = names.map { |name| cache_key(name) }
       options = options.reverse_merge(@init_options)
 
-      Hash[core_store.read_multi(*names, options).map do |key, val|
+      core_store.read_multi(*names, options).map do |key, val|
         [source_cache_key(key), uncompressed(val, options)]
-      end]
+      end.to_h
     end
 
     def fetch_multi(*names)
@@ -124,7 +124,7 @@ module RailsBrotliCache
       @core_store.delete(cache_key(name), options)
     end
 
-    def clear(options = nil)
+    def clear
       @core_store.clear
     end
 
