@@ -15,13 +15,18 @@ describe RailsBrotliCache do
     end
   end
 
+  let(:options) do
+    {}
+  end
+
   let(:redis_store) do
-    ActiveSupport::Cache::RedisCacheStore.new(redis: $redis)
+    ActiveSupport::Cache::RedisCacheStore.new({ redis: $redis }.merge(options))
   end
 
   let(:brotli_store) do
     RailsBrotliCache::Store.new(
-      redis_store
+      ActiveSupport::Cache::RedisCacheStore.new(redis: $redis),
+      options
     )
   end
 
@@ -49,6 +54,42 @@ describe RailsBrotliCache do
       brotli_store.fetch([:views, "controller/action", collection]) { 123 }
       expect($redis.get("views/controller/action/post/1/post/2")).to be_present
       expect($redis.get("br-views/controller/action/post/1/post/2")).to be_present
+      expect(brotli_store.read([:views, "controller/action", collection])).to eq 123
+    end
+
+    context "custom namespace string is not duplicated" do
+      let(:options) do
+        {
+          namespace: "myapp"
+        }
+      end
+
+      it "activemodel object keys" do
+        post_1 = Post.new(id: 1)
+        redis_store.fetch(post_1) { 123 }
+        brotli_store.fetch(post_1) { 123 }
+        expect($redis.get("myapp:post/1")).to be_present
+        expect($redis.get("myapp:br-post/1")).to be_present
+        expect(brotli_store.read(post_1)).to eq 123
+      end
+    end
+
+    context "custom namespace proc" do
+      @@counter = 0
+      let(:options) do
+        {
+          namespace: -> { "myapp" }
+        }
+      end
+
+      it "activemodel object keys" do
+        post_1 = Post.new(id: 1)
+        redis_store.fetch(post_1) { 123 }
+        brotli_store.fetch(post_1) { 123 }
+        expect($redis.get("myapp:post/1")).to be_present
+        expect($redis.get("myapp:br-post/1")).to be_present
+        expect(brotli_store.read(post_1)).to eq 123
+      end
     end
   end
 end

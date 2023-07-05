@@ -46,7 +46,7 @@ module RailsBrotliCache
       end
 
       uncompressed(
-        @core_store.fetch(expanded_cache_key(name, options[:namespace]), options.merge(compress: false)) do
+        @core_store.fetch(expanded_cache_key(name), options.merge(compress: false)) do
           if block_given?
             compressed(block.call, options)
           else
@@ -62,7 +62,7 @@ module RailsBrotliCache
       payload = compressed(value, options)
 
       @core_store.write(
-        expanded_cache_key(name, options[:namespace]),
+        expanded_cache_key(name),
         payload,
         options.merge(compress: false)
       )
@@ -72,7 +72,7 @@ module RailsBrotliCache
       options = (options || {}).reverse_merge(@init_options)
 
       payload = @core_store.read(
-        expanded_cache_key(name, options[:namespace]),
+        expanded_cache_key(name),
         options
       )
 
@@ -83,7 +83,7 @@ module RailsBrotliCache
       options = (options || {}).reverse_merge(@init_options)
       new_hash = hash.map do |key, val|
         [
-          expanded_cache_key(key, options[:namespace]),
+          expanded_cache_key(key),
           compressed(val, options)
         ]
       end
@@ -96,7 +96,7 @@ module RailsBrotliCache
 
     def read_multi(*names)
       options = names.extract_options!
-      names = names.map { |name| expanded_cache_key(name, options[:namespace]) }
+      names = names.map { |name| expanded_cache_key(name) }
       options = options.reverse_merge(@init_options)
 
       core_store.read_multi(*names, options).map do |key, val|
@@ -106,7 +106,7 @@ module RailsBrotliCache
 
     def fetch_multi(*names)
       options = names.extract_options!
-      names = names.map { |name| expanded_cache_key(name, options[:namespace]) }
+      names = names.map { |name| expanded_cache_key(name) }
       options = options.reverse_merge(@init_options)
 
       @core_store.fetch_multi(
@@ -117,11 +117,11 @@ module RailsBrotliCache
     end
 
     def exist?(name, options = {})
-      @core_store.exist?(expanded_cache_key(name, options[:namespace]), options)
+      @core_store.exist?(expanded_cache_key(name), options)
     end
 
     def delete(name, options = {})
-      @core_store.delete(expanded_cache_key(name, options[:namespace]), options)
+      @core_store.delete(expanded_cache_key(name), options)
     end
 
     def clear
@@ -129,11 +129,11 @@ module RailsBrotliCache
     end
 
     def increment(name, amount = 1, **options)
-      @core_store.increment(expanded_cache_key(name, options[:namespace]), amount, **options)
+      @core_store.increment(expanded_cache_key(name), amount, **options)
     end
 
     def decrement(name, amount = 1, **options)
-      @core_store.decrement(expanded_cache_key(name, options[:namespace]), amount, **options)
+      @core_store.decrement(expanded_cache_key(name), amount, **options)
     end
 
     def self.supports_cache_versioning?
@@ -174,8 +174,8 @@ module RailsBrotliCache
       Marshal.load(serialized)
     end
 
-    def expanded_cache_key(name, namespace = nil)
-      "#{@prefix}#{::ActiveSupport::Cache.expand_cache_key(name, namespace)}"
+    def expanded_cache_key(name)
+      "#{@prefix}#{::ActiveSupport::Cache.expand_cache_key(name)}"
     end
 
     def source_cache_key(name)
