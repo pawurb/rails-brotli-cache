@@ -32,6 +32,10 @@ describe RailsBrotliCache do
     include ActiveModel::Model
 
     attr_accessor :id
+
+    def to_param
+      "post/#{id}"
+    end
   end
 
   describe "#fetch" do
@@ -56,8 +60,8 @@ describe RailsBrotliCache do
 
       collection = [Post.new(id: 1), Post.new(id: 2)]
 
-      cache_store.fetch([:views, "controller/action", [collection, nil]]) { cached_fragment }
-      expect(cache_store.read([:views, "controller/action", [collection, nil]])).to eq(cached_fragment)
+      cache_store.fetch([:views, "controller/action", collection]) { cached_fragment }
+      expect(cache_store.read([:views, "controller/action", collection])).to eq(cached_fragment)
     end
 
     context "{ force: true }" do
