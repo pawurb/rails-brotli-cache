@@ -28,6 +28,12 @@ describe RailsBrotliCache do
     end
   end
 
+  class Post
+    include ActiveModel::Model
+
+    attr_accessor :id
+  end
+
   describe "#fetch" do
     it "stores value in the configured Rails.cache with a prefix" do
       cache_store.fetch("test-key") { 123 }
@@ -43,6 +49,15 @@ describe RailsBrotliCache do
       cache_store.fetch("test-key") { counter += 1 }
       cache_store.fetch("test-key") { counter += 1 }
       expect(cache_store.read("test-key")).to eq 1
+    end
+
+    it "stores and reads fragment caches with complex objects as cache keys" do
+      cached_fragment = "<div>Cached fragment</div>"
+
+      collection = [Post.new(id: 1), Post.new(id: 2)]
+
+      cache_store.fetch([:views, "controller/action", [collection, nil]]) { cached_fragment }
+      expect(cache_store.read([:views, "controller/action", [collection, nil]])).to eq(cached_fragment)
     end
 
     context "{ force: true }" do
@@ -125,6 +140,15 @@ describe RailsBrotliCache do
       expect(cache_store.read("test-key")).to eq nil
       expect(cache_store.write("test-key", big_enough_to_compress_value))
       expect(cache_store.read("test-key")).to eq big_enough_to_compress_value
+    end
+
+    it "writes and reads fragment caches with complex objects as cache keys" do
+      cached_fragment = "<div>Cached fragment</div>"
+
+      collection = [Post.new(id: 1), Post.new(id: 2)]
+
+      cache_store.write([:views, "controller/action", [collection, nil]], cached_fragment)
+      expect(cache_store.read([:views, "controller/action", [collection, nil]])).to eq(cached_fragment)
     end
 
     describe ":compressor_class option" do
