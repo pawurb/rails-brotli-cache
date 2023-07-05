@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "active_support/cache"
-require "brotli"
+require 'active_support/cache'
+require 'brotli'
 
 module RailsBrotliCache
   class Store < ::ActiveSupport::Cache::Store
@@ -41,14 +41,16 @@ module RailsBrotliCache
     def fetch(name, options = nil, &block)
       options = (options || {}).reverse_merge(@init_options)
 
-      if !block && options[:force]
+      if !block_given? && options[:force]
         raise ArgumentError, "Missing block: Calling `Cache#fetch` with `force: true` requires a block."
       end
 
       uncompressed(
         @core_store.fetch(expanded_cache_key(name, options[:namespace]), options.merge(compress: false)) do
-          if block
+          if block_given?
             compressed(block.call, options)
+          else
+            nil
           end
         end,
         options
@@ -97,9 +99,9 @@ module RailsBrotliCache
       names = names.map { |name| expanded_cache_key(name, options[:namespace]) }
       options = options.reverse_merge(@init_options)
 
-      core_store.read_multi(*names, options).map do |key, val|
+      Hash[core_store.read_multi(*names, options).map do |key, val|
         [source_cache_key(key), uncompressed(val, options)]
-      end.to_h
+      end]
     end
 
     def fetch_multi(*names)
@@ -122,7 +124,7 @@ module RailsBrotliCache
       @core_store.delete(expanded_cache_key(name, options[:namespace]), options)
     end
 
-    def clear
+    def clear(options = nil)
       @core_store.clear
     end
 
