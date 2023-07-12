@@ -21,4 +21,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "redis"
   gem.add_development_dependency "dalli"
   gem.add_development_dependency "byebug"
+
+  if gem.respond_to?(:metadata=)
+    gem.metadata = { "rubygems_mfa_required" => "true" }
+  end
 end
