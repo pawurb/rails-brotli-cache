@@ -211,4 +211,13 @@ describe RailsBrotliCache do
       expect(cache_store.read("test-key")).to eq nil
     end
   end
+
+  describe "#clear" do
+    it "clears the cache" do
+      expect(cache_store.write("test-key", 1234))
+      expect(cache_store.read("test-key")).to eq 1234
+      cache_store.clear
+      expect(cache_store.read("test-key")).to eq nil
+    end
+  end
 end
