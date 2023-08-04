@@ -124,8 +124,8 @@ module RailsBrotliCache
       @core_store.delete(expanded_cache_key(name), options)
     end
 
-    def clear
-      @core_store.clear
+    def clear(options = {})
+      @core_store.clear(**options)
     end
 
     def increment(name, amount = 1, **options)
