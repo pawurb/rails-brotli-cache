@@ -1,4 +1,4 @@
-# Rails Brotli Cache [![Gem Version](https://img.shields.io/gem/v/rails-brotli-cache)](https://badge.fury.io/rb/rails-brotli-cache) [![CircleCI](https://github.com/pawurb/rails-brotli-cache/actions/workflows/ci.yml/badge.svg)](https://github.com/pawurb/rails-brotli-cache/actions)
+# Rails Brotli Cache [![Gem Version](https://img.shields.io/gem/v/rails-brotli-cache)](https://badge.fury.io/rb/rails-brotli-cache) [![GH Actions](https://github.com/pawurb/rails-brotli-cache/actions/workflows/ci.yml/badge.svg)](https://github.com/pawurb/rails-brotli-cache/actions)
 
 This gem enables support for compressing Ruby on Rails cache entries using the [Brotli compression algorithm](https://github.com/google/brotli). `RailsBrotliCache::Store` offers better compression and performance compared to the default `Rails.cache` Gzip, regardless of the underlying data store. The gem also allows specifying any custom compression algorithm instead of Brotli.
 
