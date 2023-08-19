@@ -1,4 +1,5 @@
-require 'rails'
+require "active_support"
+require "active_support/core_ext/hash"
 require 'net/http'
 require 'rails-brotli-cache'
 

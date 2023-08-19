@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'bundler/setup'
-require 'rails'
+require "active_support"
+require "active_support/core_ext/hash"
 require 'redis'
 
 require_relative '../lib/rails-brotli-cache'
