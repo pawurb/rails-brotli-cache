@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-return unless ENV['RAILS_CACHE_STORE'] == 'brotli_cache_store'
+return unless ENV['TEST_RAILS_CACHE_STORE'] == 'brotli_cache_store'
 
 describe RailsBrotliCache do
   subject(:cache_store) do

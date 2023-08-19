@@ -6,10 +6,12 @@ require 'redis'
 require_relative '../lib/rails-brotli-cache'
 
 $redis = Redis.new
-$rails_cache_store = if ENV['RAILS_CACHE_STORE'] == 'redis_cache_store'
+$test_rails_cache_store = if ENV['TEST_RAILS_CACHE_STORE'] == 'redis_cache_store'
   ActiveSupport::Cache::RedisCacheStore.new(redis: $redis)
-elsif ENV['RAILS_CACHE_STORE'] == 'brotli_cache_store'
+elsif ENV['TEST_RAILS_CACHE_STORE'] == 'brotli_cache_store'
   RailsBrotliCache::Store.new(ActiveSupport::Cache::MemoryStore.new)
+elsif ENV['TEST_RAILS_CACHE_STORE'] == 'memcache_cache_store'
+  ActiveSupport::Cache::ActiveSupport::Cache::MemCacheStore.new
 else
   ActiveSupport::Cache::MemoryStore.new
 end

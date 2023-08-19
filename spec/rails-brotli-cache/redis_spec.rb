@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-return unless ENV['RAILS_CACHE_STORE'] == 'redis_cache_store'
+return unless ENV['TEST_RAILS_CACHE_STORE'] == 'redis_cache_store'
 
 describe RailsBrotliCache do
   let(:options) do

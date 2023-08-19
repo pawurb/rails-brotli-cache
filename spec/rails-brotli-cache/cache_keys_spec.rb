@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-return unless ENV['RAILS_CACHE_STORE'] == 'redis_cache_store'
+return unless ENV['TEST_RAILS_CACHE_STORE'] == 'redis_cache_store'
 
 describe RailsBrotliCache do
   class Post
@@ -20,7 +20,7 @@ describe RailsBrotliCache do
   end
 
   let(:redis_store) do
-    ActiveSupport::Cache::RedisCacheStore.new({ redis: $redis }.merge(options))
+    ActiveSupport::Cache::RedisCacheStore.new(**{ redis: $redis }.merge(options))
   end
 
   let(:brotli_store) do
@@ -75,7 +75,6 @@ describe RailsBrotliCache do
     end
 
     context "custom namespace proc" do
-      @@counter = 0
       let(:options) do
         {
           namespace: -> { "myapp" }
