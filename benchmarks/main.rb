@@ -1,7 +1,8 @@
-require "active_support"
-require "active_support/core_ext/hash"
+require 'active_support'
+require 'active_support/core_ext/hash'
 require 'net/http'
 require 'rails-brotli-cache'
+require 'benchmark'
 
 memory_cache = ActiveSupport::Cache::MemoryStore.new(compress: true) # memory store does not use compression by default
 brotli_memory_cache = RailsBrotliCache::Store.new(memory_cache)
