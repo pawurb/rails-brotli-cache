@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.license       = "MIT"
   gem.add_dependency "activesupport"
-  gem.add_dependency "brotli"
+  gem.add_development_dependency "brotli"
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "railties"
   gem.add_development_dependency "activemodel"

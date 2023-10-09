@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 require 'active_support/cache'
-require 'brotli'
+begin
+  require 'brotli'
+rescue LoadError
+end
 
 module RailsBrotliCache
   class Store < ::ActiveSupport::Cache::Store
