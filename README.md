@@ -9,7 +9,7 @@ You can check out [this blog post](https://pawelurbanek.com/rails-brotli-cache) 
 `Gemfile`
 
 ```ruby
-  gem 'brotli' # brotli is an optional dependency because other compressors are supported
+  gem 'brotli' # an optional dependency, other compressors are supported
   gem 'rails-brotli-cache'
 ```
 
@@ -139,10 +139,21 @@ config.cache_store = RailsBrotliCache::Store.new(
 ```
 
 ```ruby
+
+class ZSTDCompressor
+  def self.deflate(payload)
+    ::Zstd.compress(payload, 10)
+  end
+
+  def self.inflate(payload)
+    ::Zstd.decompress(payload)
+  end
+end
+
 Rails.cache.write('test-key', json, compressor_class: Snappy)
 ```
 
-This config expects a class which defines two class methods `inflate` and `deflate`. It allows you to instead use for example a [Google Snappy algorithm](https://github.com/miyucy/snappy) offering even better performance for the cost of worse compresion ratios. Optionally, you can define a custom class wrapping any compression library.
+This config expects a class that defines two methods, `inflate` and `deflate`. It allows to use, for example, a [ZSTD by Facebook](https://github.com/SpringMT/zstd-ruby), offering even better performance and compression.
 
 ## Testing
 
