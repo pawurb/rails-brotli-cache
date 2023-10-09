@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+gem 'brotli'
 gem 'rails-brotli-cache', path: "../"
 gem 'redis'
 gem 'dalli'
+gem 'zstd-ruby'
