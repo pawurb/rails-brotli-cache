@@ -109,16 +109,21 @@ module RailsBrotliCache
 
     def fetch_multi(*names)
       options = names.extract_options!
-      names = names.map { |name| expanded_cache_key(name) }
+      expanded_names = names.map { |name| expanded_cache_key(name) }
       options = options.reverse_merge(@init_options)
 
-      @core_store.fetch_multi(
-        *names, options.merge(compress: false)
-      ) do |name|
-        compressed(yield(source_cache_key(name)), options)
-      end.map do |key, val|
+      reads   = core_store.send(:read_multi_entries, expanded_names, **options)
+      reads.map do |key, val|
         [source_cache_key(key), uncompressed(val, options)]
       end.to_h
+
+      writes  = {}
+      ordered = names.index_with do |name|
+        reads.fetch(name) { writes[name] = yield(name) }
+      end
+
+      write_multi(writes)
+      ordered
     end
 
     def exist?(name, options = {})

@@ -112,8 +112,12 @@ describe RailsBrotliCache do
       }
     end
 
-    it "works" do
+    it "works for store and reread" do
       expect(subject).to eq response
+
+      expect(cache_store.fetch_multi(*keys) do |key|
+        big_enough_to_compress_value + key
+      end).to eq response
     end
   end
 
