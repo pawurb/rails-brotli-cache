@@ -13,6 +13,10 @@ describe RailsBrotliCache do
   ]
 
   CACHE_STORE_TYPES.each do |cache_store_types|
+    let(:big_enough_to_compress_value) do
+      SecureRandom.hex(2048)
+    end
+
     describe "Brotli cache has the same API as #{cache_store_types[0].class}" do
       subject(:brotli_store) do
         RailsBrotliCache::Store.new(cache_store_types[0])
@@ -32,7 +36,7 @@ describe RailsBrotliCache do
 
       it "for #read and #write" do
         int_val = 123
-        expect(brotli_store.write("int_val_key", int_val).class).to eq(standard_cache.write("int_val_key", int_val).class)
+        expect(brotli_store.write("int_val_key", big_enough_to_compress_value).class).to eq(standard_cache.write("int_val_key", big_enough_to_compress_value).class)
         expect(brotli_store.read("int_val_key")).to eq(standard_cache.read("int_val_key"))
 
         str_val = "str"
@@ -55,16 +59,15 @@ describe RailsBrotliCache do
       end
 
       it "for #fetch" do
-        val = "123"
-        expect(brotli_store.fetch("val_key") { val }).to eq(standard_cache.fetch("val_key") { val })
-        expect(brotli_store.fetch("val_key", force: true) { val }).to eq(standard_cache.fetch("val_key", force: true) { val })
+        expect(brotli_store.fetch("val_key") { big_enough_to_compress_value }).to eq(standard_cache.fetch("val_key") { big_enough_to_compress_value })
+        expect(brotli_store.fetch("val_key", force: true) { big_enough_to_compress_value }).to eq(standard_cache.fetch("val_key", force: true) { big_enough_to_compress_value })
         expect(brotli_store.fetch("val_key")).to eq(standard_cache.fetch("val_key"))
       end
 
       it "for #write_multi and #read_multi" do
         values = {
           "key_1" => "val_1",
-          "key_2" => "val_2"
+          "key_2" => big_enough_to_compress_value
         }
 
         brotli_store.write_multi(values)
@@ -78,7 +81,7 @@ describe RailsBrotliCache do
 
       it "for #fetch_multi" do
         values = {
-          "key_1" => "val_1",
+          "key_1" => big_enough_to_compress_value,
           "key_2" => "val_2"
         }
 
