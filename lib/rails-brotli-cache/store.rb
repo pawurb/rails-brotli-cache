@@ -115,7 +115,7 @@ module RailsBrotliCache
       @core_store.fetch_multi(
         *names, options.merge(compress: false)
       ) do |name|
-        compressed(yield(name), options)
+        compressed(yield(source_cache_key(name)), options)
       end.map do |key, val|
         [source_cache_key(key), uncompressed(val, options)]
       end.to_h

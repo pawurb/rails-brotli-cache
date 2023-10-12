@@ -107,8 +107,8 @@ describe RailsBrotliCache do
     let(:keys) { %w[key_1 key_2] }
     let(:response) do
       {
-        'key_1' => big_enough_to_compress_value + 'br-key_1',
-        'key_2' => big_enough_to_compress_value + 'br-key_2'
+        'key_1' => big_enough_to_compress_value + 'key_1',
+        'key_2' => big_enough_to_compress_value + 'key_2'
       }
     end
 
