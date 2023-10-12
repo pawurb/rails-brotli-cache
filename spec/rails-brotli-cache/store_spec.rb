@@ -98,9 +98,22 @@ describe RailsBrotliCache do
   end
 
   describe "fetch_multi" do
+    subject do
+      cache_store.fetch_multi(*keys) do |key|
+        big_enough_to_compress_value + key
+      end
+    end
+
+    let(:keys) { %w[key_1 key_2] }
+    let(:response) do
+      {
+        'key_1' => big_enough_to_compress_value + 'br-key_1',
+        'key_2' => big_enough_to_compress_value + 'br-key_2'
+      }
+    end
+
     it "works" do
-      cache_store.fetch_multi("key_1", "key_2", expires_in: 5.seconds) { big_enough_to_compress_value }
-      expect(cache_store.read("key_1")).to eq big_enough_to_compress_value
+      expect(subject).to eq response
     end
   end
 
