@@ -119,6 +119,35 @@ describe RailsBrotliCache do
         big_enough_to_compress_value + key
       end).to eq response
     end
+
+    context 'with a complex object that responds to #cache_key' do
+      subject do
+        cache_store.fetch_multi(*keys) do |key|
+          big_enough_to_compress_value + key.id
+        end
+      end
+
+      let(:keys) do
+        [
+          OpenStruct.new(cache_key: 'key_1', id: '12345'),
+          OpenStruct.new(cache_key: 'key_2', id: '54321')
+        ]
+      end
+      let(:response) do
+        {
+          keys[0] => big_enough_to_compress_value + '12345',
+          keys[1] => big_enough_to_compress_value + '54321'
+        }
+      end
+
+      it "works for store and reread" do
+        expect(subject).to eq response
+
+        expect(cache_store.fetch_multi(*keys) do |key|
+          big_enough_to_compress_value + key.id
+        end).to eq response
+      end
+    end
   end
 
   describe "#increment and #decrement" do
