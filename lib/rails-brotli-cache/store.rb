@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'active_support/cache'
+require "active_support/cache"
 begin
-  require 'brotli'
+  require "brotli"
 rescue LoadError
 end
 
@@ -25,7 +25,7 @@ module RailsBrotliCache
     DEFAULT_OPTIONS = {
       compress_threshold: COMPRESS_THRESHOLD,
       compress: true,
-      compressor_class: BrotliCompressor
+      compressor_class: BrotliCompressor,
     }
 
     attr_reader :core_store
@@ -33,10 +33,10 @@ module RailsBrotliCache
     def initialize(core_store, options = {})
       @core_store = core_store
       @prefix = if options.key?(:prefix)
-        options.fetch(:prefix)
-      else
-        "br-"
-      end
+          options.fetch(:prefix)
+        else
+          "br-"
+        end
 
       @init_options = options.reverse_merge(DEFAULT_OPTIONS)
     end
@@ -87,7 +87,7 @@ module RailsBrotliCache
       new_hash = hash.map do |key, val|
         [
           expanded_cache_key(key),
-          compressed(val, options)
+          compressed(val, options),
         ]
       end
 
@@ -112,12 +112,12 @@ module RailsBrotliCache
       expanded_names = names.map { |name| expanded_cache_key(name) }
       options = options.reverse_merge(@init_options)
 
-      reads   = core_store.send(:read_multi_entries, expanded_names, **options)
+      reads = core_store.send(:read_multi_entries, expanded_names, **options)
       reads.map do |key, val|
         [source_cache_key(key), uncompressed(val, options)]
       end.to_h
 
-      writes  = {}
+      writes = {}
       ordered = names.index_with do |name|
         reads.fetch(name) { writes[name] = yield(name) }
       end
@@ -175,11 +175,11 @@ module RailsBrotliCache
       return payload if payload.is_a?(Integer)
 
       serialized = if payload.start_with?(MARK_BR_COMPRESSED)
-        compressor = options.fetch(:compressor_class)
-        compressor.inflate(payload.byteslice(1..-1))
-      else
-        payload
-      end
+          compressor = options.fetch(:compressor_class)
+          compressor.inflate(payload.byteslice(1..-1))
+        else
+          payload
+        end
 
       Marshal.load(serialized)
     end

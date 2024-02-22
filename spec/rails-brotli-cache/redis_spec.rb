@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require "spec_helper"
 
-return unless ENV['TEST_RAILS_CACHE_STORE'] == 'redis_cache_store'
+return unless ENV["TEST_RAILS_CACHE_STORE"] == "redis_cache_store"
 
 describe RailsBrotliCache do
   let(:options) do
@@ -24,7 +24,7 @@ describe RailsBrotliCache do
   end
 
   let(:json) do
-    File.read('spec/fixtures/sample.json')
+    File.read("spec/fixtures/sample.json")
   end
 
   it "applies more efficient brotli compression" do

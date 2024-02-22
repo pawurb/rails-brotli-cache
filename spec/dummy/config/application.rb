@@ -22,7 +22,7 @@ module Dummy
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
 
-    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.7')
+    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.7")
       config.load_defaults 7.0
     else
       config.load_defaults 6.0

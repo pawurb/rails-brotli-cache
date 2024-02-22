@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require "spec_helper"
 
-return unless ENV['TEST_RAILS_CACHE_STORE'] == 'redis_cache_store'
+return unless ENV["TEST_RAILS_CACHE_STORE"] == "redis_cache_store"
 
 describe RailsBrotliCache do
   class Post
@@ -60,7 +60,7 @@ describe RailsBrotliCache do
     context "custom namespace string is not duplicated" do
       let(:options) do
         {
-          namespace: "myapp"
+          namespace: "myapp",
         }
       end
 
@@ -77,7 +77,7 @@ describe RailsBrotliCache do
     context "custom namespace proc" do
       let(:options) do
         {
-          namespace: -> { "myapp" }
+          namespace: -> { "myapp" },
         }
       end
 

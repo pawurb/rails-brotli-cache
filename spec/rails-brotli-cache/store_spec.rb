@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require "spec_helper"
 
 describe RailsBrotliCache do
   subject(:cache_store) do
@@ -89,7 +89,7 @@ describe RailsBrotliCache do
     it "works" do
       values = {
         "key_1" => big_enough_to_compress_value,
-        "key_2" => 123
+        "key_2" => 123,
       }
 
       cache_store.write_multi(values, expires_in: 5.seconds)
@@ -107,8 +107,8 @@ describe RailsBrotliCache do
     let(:keys) { %w[key_1 key_2] }
     let(:response) do
       {
-        'key_1' => big_enough_to_compress_value + 'key_1',
-        'key_2' => big_enough_to_compress_value + 'key_2'
+        "key_1" => big_enough_to_compress_value + "key_1",
+        "key_2" => big_enough_to_compress_value + "key_2",
       }
     end
 
@@ -120,7 +120,7 @@ describe RailsBrotliCache do
       end).to eq response
     end
 
-    context 'with a complex object that responds to #cache_key' do
+    context "with a complex object that responds to #cache_key" do
       subject do
         cache_store.fetch_multi(*keys) do |key|
           big_enough_to_compress_value + key.id
@@ -129,14 +129,14 @@ describe RailsBrotliCache do
 
       let(:keys) do
         [
-          OpenStruct.new(cache_key: 'key_1', id: '12345'),
-          OpenStruct.new(cache_key: 'key_2', id: '54321')
+          OpenStruct.new(cache_key: "key_1", id: "12345"),
+          OpenStruct.new(cache_key: "key_2", id: "54321"),
         ]
       end
       let(:response) do
         {
-          keys[0] => big_enough_to_compress_value + '12345',
-          keys[1] => big_enough_to_compress_value + '54321'
+          keys[0] => big_enough_to_compress_value + "12345",
+          keys[1] => big_enough_to_compress_value + "54321",
         }
       end
 

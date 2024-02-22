@@ -1,15 +1,14 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require "spec_helper"
 
 describe RailsBrotliCache do
-
   CACHE_STORE_TYPES = [
     [ActiveSupport::Cache::MemoryStore.new, ActiveSupport::Cache::MemoryStore.new],
     [ActiveSupport::Cache::RedisCacheStore.new, ActiveSupport::Cache::RedisCacheStore.new],
     [ActiveSupport::Cache::MemCacheStore.new, ActiveSupport::Cache::MemCacheStore.new],
-    [ActiveSupport::Cache::FileStore.new('./tmp'), ActiveSupport::Cache::FileStore.new('./tmp')],
-    [ActiveSupport::Cache::NullStore.new, ActiveSupport::Cache::NullStore.new]
+    [ActiveSupport::Cache::FileStore.new("./tmp"), ActiveSupport::Cache::FileStore.new("./tmp")],
+    [ActiveSupport::Cache::NullStore.new, ActiveSupport::Cache::NullStore.new],
   ]
 
   CACHE_STORE_TYPES.each do |cache_store_types|
@@ -72,7 +71,7 @@ describe RailsBrotliCache do
       it "for #write_multi and #read_multi" do
         values = {
           "key_1" => big_enough_to_compress_value,
-          "key_2" => "val_2"
+          "key_2" => "val_2",
         }
 
         brotli_store.write_multi(values)
@@ -87,7 +86,7 @@ describe RailsBrotliCache do
       it "for #fetch_multi" do
         values = {
           "key_1" => big_enough_to_compress_value,
-          "key_2" => "val_2"
+          "key_2" => "val_2",
         }
 
         brotli_store.fetch_multi("key_1", "key_2") do |key|

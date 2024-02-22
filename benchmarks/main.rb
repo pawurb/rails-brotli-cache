@@ -1,10 +1,10 @@
-require 'active_support'
-require 'active_support/core_ext/hash'
-require 'net/http'
-require 'brotli'
-require 'rails-brotli-cache'
-require 'benchmark'
-require 'zstd-ruby'
+require "active_support"
+require "active_support/core_ext/hash"
+require "net/http"
+require "brotli"
+require "rails-brotli-cache"
+require "benchmark"
+require "zstd-ruby"
 
 class ZSTDCompressor
   def self.deflate(payload)
@@ -28,7 +28,7 @@ memcached_cache = ActiveSupport::Cache::MemCacheStore.new
 brotli_memcached_cache = RailsBrotliCache::Store.new(memcached_cache)
 zstd_memcached_cache = RailsBrotliCache::Store.new(memcached_cache, compressor_class: ZSTDCompressor, prefix: "zs-")
 
-file_cache = ActiveSupport::Cache::FileStore.new('/tmp')
+file_cache = ActiveSupport::Cache::FileStore.new("/tmp")
 brotli_file_cache = RailsBrotliCache::Store.new(file_cache)
 zstd_file_cache = RailsBrotliCache::Store.new(file_cache, compressor_class: ZSTDCompressor, prefix: "zs-")
 
