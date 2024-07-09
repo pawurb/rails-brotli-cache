@@ -150,7 +150,7 @@ class ZSTDCompressor
   end
 end
 
-Rails.cache.write('test-key', json, compressor_class: Snappy)
+Rails.cache.write('test-key', json, compressor_class: ZSTDCompressor)
 ```
 
 This config expects a class that defines two methods, `inflate` and `deflate`. It allows to use, for example, a [ZSTD by Facebook](https://github.com/SpringMT/zstd-ruby), offering even better performance and compression.
