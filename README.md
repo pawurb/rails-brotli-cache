@@ -134,7 +134,7 @@ By default gem uses a Brotli compression, but you can customize the algorithm. Y
 ```ruby
 config.cache_store = RailsBrotliCache::Store.new(
   ActiveSupport::Cache::RedisCacheStore.new,
-  { compressor_class: Snappy }
+  { compressor_class: ZSTDCompressor }
 )
 ```
 
@@ -142,7 +142,7 @@ config.cache_store = RailsBrotliCache::Store.new(
 
 class ZSTDCompressor
   def self.deflate(payload)
-    ::Zstd.compress(payload, 10)
+    ::Zstd.compress(payload, level: 10)
   end
 
   def self.inflate(payload)
