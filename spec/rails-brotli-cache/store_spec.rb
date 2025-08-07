@@ -258,6 +258,58 @@ describe RailsBrotliCache do
     end
   end
 
+  describe "#delete_multi" do
+    it "removes multiple previously stored cache entries" do
+      cache_store.write("key_1", 1234)
+      cache_store.write("key_2", 5678)
+      cache_store.write("key_3", 9012)
+
+      expect(cache_store.read("key_1")).to eq 1234
+      expect(cache_store.read("key_2")).to eq 5678
+      expect(cache_store.read("key_3")).to eq 9012
+
+      cache_store.delete_multi(["key_1", "key_3"])
+
+      expect(cache_store.read("key_1")).to eq nil
+      expect(cache_store.read("key_2")).to eq 5678
+      expect(cache_store.read("key_3")).to eq nil
+    end
+
+    it "works with complex objects as cache keys" do
+      collection1 = [Post.new(id: 1), Post.new(id: 2)]
+      collection2 = [Post.new(id: 3), Post.new(id: 4)]
+
+      cache_store.write([:views, "controller/action", collection1], "fragment1")
+      cache_store.write([:views, "controller/action", collection2], "fragment2")
+
+      expect(cache_store.read([:views, "controller/action", collection1])).to eq "fragment1"
+      expect(cache_store.read([:views, "controller/action", collection2])).to eq "fragment2"
+
+      cache_store.delete_multi([[:views, "controller/action", collection1]])
+
+      expect(cache_store.read([:views, "controller/action", collection1])).to eq nil
+      expect(cache_store.read([:views, "controller/action", collection2])).to eq "fragment2"
+    end
+
+    it "handles empty array gracefully" do
+      cache_store.write("test-key", 1234)
+      expect(cache_store.read("test-key")).to eq 1234
+
+      cache_store.delete_multi([])
+
+      expect(cache_store.read("test-key")).to eq 1234
+    end
+
+    it "handles non-existent keys gracefully" do
+      cache_store.write("existing-key", 1234)
+      expect(cache_store.read("existing-key")).to eq 1234
+
+      cache_store.delete_multi(["existing-key", "non-existent-key"])
+
+      expect(cache_store.read("existing-key")).to eq nil
+    end
+  end
+
   describe "#clear" do
     it "clears the cache" do
       expect(cache_store.write("test-key", 1234))

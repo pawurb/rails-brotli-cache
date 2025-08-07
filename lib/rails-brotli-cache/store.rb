@@ -89,7 +89,7 @@ module RailsBrotliCache
           expanded_cache_key(key),
           compressed(val, options),
         ]
-      end
+      end.to_h
 
       @core_store.write_multi(
         new_hash,
@@ -105,6 +105,13 @@ module RailsBrotliCache
       core_store.read_multi(*names, options).map do |key, val|
         [source_cache_key(key), uncompressed(val, options)]
       end.to_h
+    end
+
+    def delete_multi(names, options = nil)
+      options = (options || {}).reverse_merge(@init_options)
+      names = names.map { |name| expanded_cache_key(name) }
+
+      core_store.delete_multi(names, options)
     end
 
     def fetch_multi(*names)
